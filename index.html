@@ -8,15 +8,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* ==========================================
-           1. ZAMONAVIY NEON & TO'Q RANGLAR DIZAYNI
-           ========================================== */
         :root {
             --bg-color: #0b0f19; 
             --panel-bg: #131c2e;
-            --primary-color: #6366f1; /* Neon binafsha */
+            --primary-color: #6366f1; 
             --primary-hover: #4f46e5;
-            --accent-color: #3b82f6; /* Moviy */
+            --accent-color: #3b82f6; 
             --text-color: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #1e293b;
@@ -124,7 +121,6 @@
             margin-bottom: 35px;
         }
 
-        /* BO'LIMLAR UCHUN UMUMIY SINF */
         .section-padding {
             padding: 100px 8%;
         }
@@ -149,7 +145,7 @@
             gap: 30px;
         }
 
-        /* KARTALR (SERVICES & COURSES) */
+        /* KARTALAR */
         .card {
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color);
@@ -159,12 +155,13 @@
             transition: var(--transition);
             position: relative;
             overflow: hidden;
+            cursor: pointer;
         }
 
         .card:hover {
             transform: translateY(-5px);
             border-color: var(--primary-color);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15);
         }
 
         .card-icon {
@@ -196,7 +193,94 @@
             font-weight: 700;
         }
 
-        /* ALOQA BO'LIMI (FORM) */
+        /* VIDEOLAR KO'RISH MODALI */
+        .video-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 8, 16, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1100;
+            padding: 40px;
+        }
+
+        .video-modal.active {
+            display: flex;
+        }
+
+        .video-container {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            overflow: hidden;
+            height: 80vh;
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .video-container {
+                grid-template-columns: 1fr;
+                height: 90vh;
+                overflow-y: auto;
+            }
+        }
+
+        .video-player-side {
+            padding: 20px;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .video-player-side iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+        }
+
+        .video-playlist-side {
+            padding: 25px;
+            border-left: 1px solid var(--border-color);
+            overflow-y: auto;
+            background: var(--panel-bg);
+        }
+
+        .playlist-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .playlist-item {
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+
+        .playlist-item:hover, .playlist-item.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* ALOQA BO'LIMI */
         .contact {
             padding: 100px 8%;
             display: flex;
@@ -246,7 +330,7 @@
             border-color: var(--primary-color);
         }
 
-        /* SHAXSIY ADMIN PANEL INTERFEYSI (FAQAT SIZ UCHUN) */
+        /* ADMIN PANEL INTERFEYSI */
         #admin-panel {
             display: none;
             position: fixed;
@@ -269,28 +353,40 @@
             padding-bottom: 20px;
         }
 
+        .admin-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .admin-sections {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .leads-table {
             width: 100%;
             border-collapse: collapse;
             background-color: var(--panel-bg);
             border-radius: var(--radius);
             overflow: hidden;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .leads-table th, .leads-table td {
-            padding: 15px 20px;
+            padding: 12px 15px;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
         }
 
         .leads-table th {
             background-color: rgba(0, 0, 0, 0.2);
             color: var(--text-muted);
-            font-size: 14px;
         }
 
-        /* KIRISH MODALI */
+        /* MODALLAR */
         .login-modal {
             position: fixed;
             top: 0;
@@ -325,11 +421,11 @@
 
     <!-- NAVIGATSIYA -->
     <header>
-        <a href="#" class="logo">⚡ INSAN.DEV</a>
+        <a href="#" class="logo">⚡ KING_777_OKENG</a>
         <nav>
             <a href="#services">Xizmatlar</a>
             <a href="#courses">Kurslar</a>
-            <a href="#contact">Ro'yxatdan o'tish</a>
+            <a href="#contact">Yozilish</a>
             <a href="#" onclick="toggleLoginModal()" style="color: var(--text-muted); font-size: 12px; margin-left: 40px;">🔑 Admin</a>
         </nav>
         <a href="#contact" class="btn-main">Loyiha boshlash</a>
@@ -338,8 +434,8 @@
     <!-- HERO SECTION -->
     <section class="hero">
         <h1>Xizmatlar va Zamonaviy<br><span style="background: linear-gradient(135deg, #a78bfa, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">O'quv Kurslari</span></h1>
-        <p>Premium darajadagi raqamli xizmatlar hamda ofis dasturlari va dasturlashni noldan professional darajagacha o'rgatuvchi kurslar.</p>
-        <a href="#courses" class="btn-main" style="padding: 16px 36px; font-size: 16px;">Kurslarni tanlash</a>
+        <p>Premium darajadagi xizmatlar hamda darslarni videopleyerda onlayn o'rganish imkoniyatiga ega bo'lgan kurslarimiz.</p>
+        <a href="#courses" class="btn-main" style="padding: 16px 36px; font-size: 16px;">Kurslarni boshlash 🎬</a>
     </section>
 
     <!-- 1. XIZMATLAR BO'LIMI -->
@@ -347,17 +443,17 @@
         <h2 class="section-title">Biz ko'rsatadigan xizmatlar</h2>
         <p class="section-subtitle">Biznesingiz rivoji uchun eng sara raqamli yechimlar</p>
         <div class="grid-layout">
-            <div class="card">
+            <div class="card" style="cursor: default;">
                 <div class="card-icon">💻</div>
                 <h3>Veb-sayt yaratish</h3>
                 <p>Biznesingiz imidjini oshiruvchi, tezkor, xavfsiz va barcha qurilmalarga moslashuvchan saytlar.</p>
             </div>
-            <div class="card">
+            <div class="card" style="cursor: default;">
                 <div class="card-icon">🎨</div>
                 <h3>UX/UI Dizayn</h3>
                 <p>Mijozlaringiz uchun qulay, intuitiv va yuqori vizual ko'rinishga ega zamonaviy interfeys dizayni.</p>
             </div>
-            <div class="card">
+            <div class="card" style="cursor: default;">
                 <div class="card-icon">🚀</div>
                 <h3>SEO Optimizatsiya</h3>
                 <p>Google va boshqa qidiruv tizimlarida eng yuqori o'rinlarni egallash orqali bepul mijozlar oqimi.</p>
@@ -365,56 +461,84 @@
         </div>
     </section>
 
-    <!-- 2. KURSLAR BO'LIMI (KO'ZGA YAQQOL TASHLANADIGAN) -->
+    <!-- 2. KURSLAR BO'LIMI (Ustiga bosganda video darslar ochiladi) -->
     <section class="section-padding" id="courses" style="background-color: #090d16; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
         <h2 class="section-title">Bizning o'quv kurslarimiz</h2>
-        <p class="section-subtitle">O'zingizga mos yo'nalishni tanlang va professionalga aylaning</p>
+        <p class="section-subtitle">Videodarslarni tomosha qilish uchun istalgan kurs kartochkasini bosing! 🎬</p>
         <div class="grid-layout">
             
-            <div class="card">
+            <div class="card" onclick="openCourseVideos('Savodxonlik kursi')">
                 <span class="badge">Kurs</span>
                 <div class="card-icon">📚</div>
                 <h3>Savodxonlik kursi</h3>
-                <p>Kompyuterning ishlash asoslari, Windows tizimi, internetdan to'g'ri va xavfsiz foydalanish saboqlari.</p>
+                <p>Kompyuterda ishlash, Windows tizimi va internet xavfsizligini darslarini o'rganing.</p>
+                <div style="margin-top: 15px; color: var(--accent-color); font-size: 13px; font-weight: 600;">Darslarni ko'rish ➜</div>
             </div>
 
-            <div class="card">
+            <div class="card" onclick="openCourseVideos('MS Word')">
                 <span class="badge">Kurs</span>
                 <div class="card-icon">📝</div>
                 <h3>MS Word</h3>
-                <p>Professional hujjatlar yaratish, shartnomalar, arizalar rasmiylashtirish va matnlar bilan mukammal ishlash.</p>
+                <p>Hujjatlar tayyorlash, matnlarni tahrirlash va hisobotlar yozishni o'rganing.</p>
+                <div style="margin-top: 15px; color: var(--accent-color); font-size: 13px; font-weight: 600;">Darslarni ko'rish ➜</div>
             </div>
 
-            <div class="card">
+            <div class="card" onclick="openCourseVideos('MS Excel')">
                 <span class="badge">Kurs</span>
                 <div class="card-icon">📊</div>
                 <h3>MS Excel</h3>
-                <p>Murakkab formulalar, hisobotlar, jadvallar, diagrammalar va ma'lumotlarni professional tahlil qilish.</p>
+                <p>Formulalar, diagrammalar va moliyaviy jadvallar ustida ishlash darslari.</p>
+                <div style="margin-top: 15px; color: var(--accent-color); font-size: 13px; font-weight: 600;">Darslarni ko'rish ➜</div>
             </div>
 
-            <div class="card">
+            <div class="card" onclick="openCourseVideos('HTML & CSS')">
                 <span class="badge">Kurs</span>
                 <div class="card-icon">🌐</div>
                 <h3>HTML & CSS</h3>
-                <p>Veb-sahifalarning vizual tuzilishini yaratish, saytlar dizaynini mukammal kodlash asoslari.</p>
+                <p>Veb-saytlarni noldan boshlab dasturlash va chiroyli dizayn berishni o'rganing.</p>
+                <div style="margin-top: 15px; color: var(--accent-color); font-size: 13px; font-weight: 600;">Darslarni ko'rish ➜</div>
             </div>
 
-            <div class="card">
+            <div class="card" onclick="openCourseVideos('Java')">
                 <span class="badge">Kurs</span>
                 <div class="card-icon">☕</div>
                 <h3>Java</h3>
-                <p>Mustahkam, keng qamrovli va xavfsiz backend tizimlari hamda dasturiy ta'minotlar yaratish.</p>
+                <p>Kuchli backend, mobil dasturlar va ma'lumotlar bazasi darsliklari.</p>
+                <div style="margin-top: 15px; color: var(--accent-color); font-size: 13px; font-weight: 600;">Darslarni ko'rish ➜</div>
             </div>
 
-            <div class="card">
+            <div class="card" onclick="openCourseVideos('React')">
                 <span class="badge">Kurs</span>
                 <div class="card-icon">⚛️</div>
                 <h3>React</h3>
-                <p>Zamonaviy, dinamik va o'ta tezkor bir sahifali veb-ilovalarni (SPA) yaratish texnologiyasi.</p>
+                <p>Zamonaviy veb-ilova (SPA) va dinamik front-end interfeyslar yaratish darslari.</p>
+                <div style="margin-top: 15px; color: var(--accent-color); font-size: 13px; font-weight: 600;">Darslarni ko'rish ➜</div>
             </div>
 
         </div>
     </section>
+
+    <!-- O'QUVCHI UCHUN VIDEOLARNI KO'RISH MODAL OYNASI -->
+    <div class="video-modal" id="video-modal">
+        <div class="video-container">
+            <!-- Yopish tugmasi -->
+            <button onclick="closeVideoModal()" style="position: absolute; right: 15px; top: 15px; background: red; border: none; color: white; padding: 5px 10px; border-radius: 5px; cursor: pointer; z-index: 10;">Yopish &times;</button>
+            
+            <!-- Video pleyer qismi -->
+            <div class="video-player-side">
+                <iframe id="main-video-player" src="" allowfullscreen></iframe>
+                <h3 id="playing-video-title" style="margin-top: 15px; font-size: 18px;">Hozir ijro etilmoqda...</h3>
+            </div>
+
+            <!-- Darslar ro'yxati -->
+            <div class="video-playlist-side">
+                <h4 id="course-playlist-title" class="playlist-title">Kurs darslari</h4>
+                <div id="playlist-items-container">
+                    <!-- Dinamik darsliklar ro'yxati chiqadi -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ALOQA VA RO'YXATDAN O'TISH FORMASI -->
     <section class="contact" id="contact">
@@ -432,7 +556,7 @@
                     <input type="tel" id="lead-phone" class="form-control" placeholder="+998 90 123 45 67" required>
                 </div>
                 <div class="form-group">
-                    <label>Sizga nima kerak? (Kurs yoki Xizmat)</label>
+                    <label>Sizga qaysi yo'nalish kerak?</label>
                     <select id="lead-service" class="form-control" style="background-color: #0b0f19;">
                         <optgroup label="Yo'nalish / Kurslar">
                             <option value="Savodxonlik kursi">Savodxonlik kursi</option>
@@ -481,41 +605,88 @@
         </div>
     </div>
 
-    <!-- FAQAT ADMIN KO'RADIGAN MAXFIY PANEL -->
+    <!-- SHAXSIY ADMIN PANEL -->
     <div id="admin-panel">
         <div class="admin-header">
-            <h2>📊 Kelib tushgan arizalar (Admin panel)</h2>
+            <h2>📊 Boshqaruv paneli (Admin)</h2>
             <div>
                 <button class="btn-main" onclick="logoutAdmin()" style="background: #ef4444;">Chiqish 🚪</button>
             </div>
         </div>
 
-        <div class="contact-card" style="max-width: 100%; padding: 30px;">
-            <h3 style="text-align: left; margin-bottom: 20px;">O'quvchilar va Mijozlar ro'yxati</h3>
-            <table class="leads-table">
-                <thead>
-                    <tr>
-                        <th>F.I.SH</th>
-                        <th>Telefon raqami</th>
-                        <th>Tanlangan kurs / xizmat</th>
-                        <th>Qoldirilgan izoh</th>
-                        <th>Amallar</th>
-                    </tr>
-                </thead>
-                <tbody id="leads-list">
-                    <!-- Dynamic Leads will load here -->
-                </tbody>
-            </table>
+        <div class="admin-sections">
+            <!-- ALOQA SO'ROVLARI JADVALI -->
+            <div class="contact-card" style="max-width: 100%; padding: 25px;">
+                <h3 style="text-align: left; margin-bottom: 20px;">Kelib tushgan arizalar</h3>
+                <table class="leads-table">
+                    <thead>
+                        <tr>
+                            <th>F.I.SH</th>
+                            <th>Telefon</th>
+                            <th>Yo'nalish</th>
+                            <th>Amal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leads-list">
+                        <!-- Dynamic Leads -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- DARSLIK VIDEOLARINI QO'SHISH BO'LIMI -->
+            <div class="contact-card" style="max-width: 100%; padding: 25px;">
+                <h3 style="text-align: left; margin-bottom: 15px;">Darslarni boshqarish 🎬</h3>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
+                    Kurslarga yangi videolarni YouTube'dan "Embed" qilib qo'shing.
+                </p>
+                <form id="add-video-form">
+                    <div class="form-group">
+                        <label>Kursni tanlang</label>
+                        <select id="video-course-select" class="form-control" style="background-color: #0b0f19;">
+                            <option value="Savodxonlik kursi">Savodxonlik kursi</option>
+                            <option value="MS Word">MS Word</option>
+                            <option value="MS Excel">MS Excel</option>
+                            <option value="HTML & CSS">HTML & CSS</option>
+                            <option value="Java">Java</option>
+                            <option value="React">React</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Dars nomi</label>
+                        <input type="text" id="video-title-input" class="form-control" placeholder="Masalan: 1-Dars: Kirish" required>
+                    </div>
+                    <div class="form-group">
+                        <label>YouTube Embed Link</label>
+                        <input type="text" id="video-url-input" class="form-control" placeholder="Masalan: https://www.youtube.com/embed/SizningKodingiz" required>
+                    </div>
+                    <button type="submit" class="btn-main" style="width: 100%; margin-bottom: 20px;">Videoni kursga qo'shish ➕</button>
+                </form>
+
+                <h4 style="margin-bottom: 10px;">Barcha o'rnatilgan videolar:</h4>
+                <div style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
+                    <ul id="admin-videos-list" style="list-style: none;">
+                        <!-- JS Dynamic list -->
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- JAVASCRIPT LOGIKA -->
     <script>
-        // Standart boshlang'ich ma'lumotlar
+        // Namunaviy arizalar bazasi
         const defaultLeads = [
-            { id: 1, name: "Asilbek To'rayev", phone: "+998 90 987 65 43", service: "HTML & CSS kursi", msg: "Kurs qachon boshlanadi? Davomiyligi qancha?" }
+            { id: 1, name: "Asilbek To'rayev", phone: "+998 90 987 65 43", service: "HTML & CSS kursi", msg: "Kurs qachon boshlanadi?" }
         ];
 
+        // Standart boshlang'ich video darslar ro'yxati (Agar hali qo'shilmagan bo'lsa)
+        const defaultVideos = [
+            { id: 1, course: "HTML & CSS", title: "1-Dars: HTML haqida tushuncha", url: "https://www.youtube.com/embed/mU6an7qMCsc" },
+            { id: 2, course: "HTML & CSS", title: "2-Dars: CSS nima va u qanday ishlaydi", url: "https://www.youtube.com/embed/1Rs2ND1ryYc" },
+            { id: 3, course: "Savodxonlik kursi", title: "1-Dars: Windows tizimini sozlash", url: "https://www.youtube.com/embed/Xqg9gN3t8jE" }
+        ];
+
+        // LOCALSTORAGE BILAN ISHLASH
         function getLeads() {
             if(!localStorage.getItem('agency_leads')) {
                 localStorage.setItem('agency_leads', JSON.stringify(defaultLeads));
@@ -527,6 +698,17 @@
             localStorage.setItem('agency_leads', JSON.stringify(leads));
         }
 
+        function getVideos() {
+            if(!localStorage.getItem('agency_videos')) {
+                localStorage.setItem('agency_videos', JSON.stringify(defaultVideos));
+            }
+            return JSON.parse(localStorage.getItem('agency_videos'));
+        }
+
+        function setVideos(videos) {
+            localStorage.setItem('agency_videos', JSON.stringify(videos));
+        }
+
         // ARIZANI SAQLASH VA POCHTAGA YUBORISH
         document.getElementById('lead-form').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -536,7 +718,7 @@
             const service = document.getElementById('lead-service').value;
             const msg = document.getElementById('lead-msg').value;
 
-            // 1. POCHTAGA AVTOMATIK XAT YUBORISH (suhrobbekqayumov@gmail.com)
+            // 1. POCHTAGA AVTOMATIK XAT YUBORISH
             fetch("https://formsubmit.co/ajax/suhrobbekqayumov@gmail.com", {
                 method: "POST",
                 headers: {
@@ -551,27 +733,62 @@
                 })
             })
             .then(res => res.json())
-            .then(data => console.log("Pochtaga xabar yuborildi!", data))
-            .catch(err => console.error("Xatolik yuz berdi:", err));
+            .then(data => console.log("Pochtaga yuborildi!"))
+            .catch(err => console.error(err));
 
             // 2. SAYT ADMIN PANELIGA SAQLASH
             const leads = getLeads();
-            const newLead = {
-                id: Date.now(),
-                name: name,
-                phone: phone,
-                service: service,
-                msg: msg
-            };
+            const newLead = { id: Date.now(), name, phone, service, msg };
             leads.push(newLead);
             setLeads(leads);
 
-            alert("Sizning arizangiz qabul qilindi va suhrobbekqayumov@gmail.com elektron pochtangizga yuborildi! 🚀");
+            alert("Sizning arizangiz muvaffaqiyatli qabul qilindi va pochtangizga yuborildi! 🚀");
             this.reset();
             renderLeads();
         });
 
-        // LOGIN MODAL FUNKSIYALARI
+        // VIDEOLARNI KO'RISH MODALINI OCHISH (O'QUVCHILAR UCHUN)
+        function openCourseVideos(courseName) {
+            const videos = getVideos().filter(v => v.course === courseName);
+            const modal = document.getElementById('video-modal');
+            const playlistContainer = document.getElementById('playlist-items-container');
+            const player = document.getElementById('main-video-player');
+            const playTitle = document.getElementById('playing-video-title');
+
+            document.getElementById('course-playlist-title').innerText = `${courseName} darslari`;
+            playlistContainer.innerHTML = '';
+
+            if (videos.length === 0) {
+                playlistContainer.innerHTML = `<p style="color: var(--text-muted); font-size: 14px;">Hozircha ushbu kurs uchun video yuklanmagan. Admin tez orada darslarni joylaydi.</p>`;
+                player.src = '';
+                playTitle.innerText = "Tez orada darslar yuklanadi...";
+            } else {
+                // Birinchi videoni pleyerga yuklash
+                player.src = videos[0].url;
+                playTitle.innerText = videos[0].title;
+
+                videos.forEach((video, index) => {
+                    const item = document.createElement('div');
+                    item.className = `playlist-item ${index === 0 ? 'active' : ''}`;
+                    item.innerText = video.title;
+                    item.onclick = function() {
+                        document.querySelectorAll('.playlist-item').forEach(el => el.classList.remove('active'));
+                        item.classList.add('active');
+                        player.src = video.url;
+                        playTitle.innerText = video.title;
+                    };
+                    playlistContainer.appendChild(item);
+                });
+            }
+            modal.classList.add('active');
+        }
+
+        function closeVideoModal() {
+            document.getElementById('video-modal').classList.remove('active');
+            document.getElementById('main-video-player').src = ''; // Videoni butunlay to'xtatish
+        }
+
+        // ADMIN LOGIN LOGIKASI
         function toggleLoginModal() {
             document.getElementById('login-modal').classList.toggle('active');
         }
@@ -593,6 +810,7 @@
         function showAdminPanel() {
             document.getElementById('admin-panel').style.display = 'block';
             renderLeads();
+            renderAdminVideos();
         }
 
         function logoutAdmin() {
@@ -600,7 +818,7 @@
             document.getElementById('admin-panel').style.display = 'none';
         }
 
-        // ARIZALARNI JADVALGA CHIQARISH
+        // ARIZALAR JADVALINI RENDIR QILISH
         function renderLeads() {
             const leads = getLeads();
             const tbody = document.getElementById('leads-list');
@@ -611,18 +829,16 @@
                 row.innerHTML = `
                     <td><strong>${lead.name}</strong></td>
                     <td><a href="tel:${lead.phone}" style="color: var(--accent-color); text-decoration: none;">${lead.phone}</a></td>
-                    <td><span style="background-color: var(--primary-hover); padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 600;">${lead.service}</span></td>
-                    <td>${lead.msg || "Izoh qoldirilmagan"}</td>
+                    <td><span style="background-color: var(--primary-hover); padding: 4px 10px; border-radius: 8px; font-size: 11px;">${lead.service}</span></td>
                     <td>
-                        <button onclick="deleteLead(${lead.id})" style="background-color: #ef4444; border: none; padding: 6px 12px; color: white; border-radius: 6px; cursor: pointer;">O'chirish 🗑️</button>
+                        <button onclick="deleteLead(${lead.id})" style="background-color: #ef4444; border: none; padding: 4px 8px; color: white; border-radius: 6px; cursor: pointer; font-size: 11px;">O'chirish</button>
                     </td>
                 `;
             });
         }
 
-        // ARIZANI O'CHIRISH
         function deleteLead(id) {
-            if(confirm("Ushbu arizani admin paneldan o'chirmoqchimisiz?")) {
+            if(confirm("Ushbu arizani o'chirmoqchimisiz?")) {
                 let leads = getLeads();
                 leads = leads.filter(l => l.id !== id);
                 setLeads(leads);
@@ -630,7 +846,57 @@
             }
         }
 
-        // Brauzer yopilib ochilganda ham admin sessiyasini tekshirish
+        // ADMIN PANELIDAN VIDEOLARNI BOSHQARISH (QO'SHISH VA O'CHIRISH)
+        document.getElementById('add-video-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const course = document.getElementById('video-course-select').value;
+            const title = document.getElementById('video-title-input').value;
+            let url = document.getElementById('video-url-input').value;
+
+            // Havola faqat oddiy bo'lsa, uni avtomatik Embed holatiga keltirish
+            if (url.includes("watch?v=")) {
+                url = url.replace("watch?v=", "embed/");
+            }
+
+            const videos = getVideos();
+            const newVideo = { id: Date.now(), course, title, url };
+            videos.push(newVideo);
+            setVideos(videos);
+
+            alert("Video darslik muvaffaqiyatli qo'shildi! 🎬");
+            this.reset();
+            renderAdminVideos();
+        });
+
+        function renderAdminVideos() {
+            const videos = getVideos();
+            const list = document.getElementById('admin-videos-list');
+            list.innerHTML = '';
+
+            videos.forEach(video => {
+                const li = document.createElement('li');
+                li.style.display = 'flex';
+                li.style.justifyContent = 'space-between';
+                li.style.padding = '8px 0';
+                li.style.borderBottom = '1px solid var(--border-color)';
+                li.style.fontSize = '13px';
+                li.innerHTML = `
+                    <span>[${video.course}] - <strong>${video.title}</strong></span>
+                    <button onclick="deleteVideo(${video.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; font-weight: 700;">&times;</button>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function deleteVideo(id) {
+            if(confirm("Ushbu darslikni o'chirmoqchimisiz?")) {
+                let videos = getVideos();
+                videos = videos.filter(v => v.id !== id);
+                setVideos(videos);
+                renderAdminVideos();
+            }
+        }
+
         window.addEventListener('load', () => {
             if(sessionStorage.getItem('isAdminLoggedIn') === 'true') {
                 showAdminPanel();
