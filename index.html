@@ -3,82 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shaxsiy Kurslar boshqaruvi (LMS)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Sizning Raqamli Agentligingiz</title>
+    <!-- Google Fonts va zamonaviy ikonkalarni yuklaymiz -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
+        /* ==========================================
+           1. PREMIUM DIZAYN PARAMETRLARI (CSS VARIABLES)
+           ========================================== */
         :root {
-            --bg-color: #f0f2f5;
-            --panel-bg: #ffffff;
-            --text-color: #1e293b;
-            --text-muted: #64748b;
-            --primary-color: #4f46e5; /* Binafsharang professional rang */
-            --primary-hover: #4338ca;
-            --success-color: #10b981;
-            --danger-color: #ef4444;
-            --border-color: #e2e8f0;
-            --sidebar-width: 260px;
-            --radius: 12px;
-            --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        body.dark-theme {
-            --bg-color: #0f172a;
-            --panel-bg: #1e293b;
+            --bg-color: #0b0f19; /* Framer uslubidagi to'q rangli estetika */
+            --panel-bg: #131c2e;
+            --primary-color: #6366f1; /* Neon binafsharang */
+            --primary-hover: #4f46e5;
+            --accent-color: #3b82f6; /* Moviy rang */
             --text-color: #f8fafc;
             --text-muted: #94a3b8;
-            --border-color: #334155;
-            --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            --border-color: #1e293b;
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
-            display: flex;
-            min-height: 100vh;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
         }
 
-        /* LOGIN OYNASI */
-        #login-page {
+        /* ==========================================
+           2. MIJOZLAR KO'RADIGAN SAYT QISMI (LANDING PAGE)
+           ========================================== */
+        header {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #4f46e5, #0f172a);
+            padding: 20px 8%;
+            background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(12px);
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        nav a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin-left: 30px;
+            font-weight: 500;
+            font-size: 15px;
+            transition: var(--transition);
+        }
+
+        nav a:hover {
+            color: var(--primary-color);
+        }
+
+        .btn-main {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            transition: var(--transition);
+        }
+
+        .btn-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+
+        /* HERO SECTION */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 9999;
-        }
-
-        .login-card {
-            background: #ffffff;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 420px;
             text-align: center;
-            color: #1e293b;
+            padding: 0 10%;
+            background: radial-gradient(circle at 50% 30%, rgba(99, 102, 241, 0.15), transparent 50%);
         }
 
-        .login-card h2 {
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin-bottom: 35px;
+        }
+
+        /* XIZMATLAR (SERVICES) */
+        .services {
+            padding: 100px 8%;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 50px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 40px 30px;
+            border-radius: var(--radius);
+            text-align: left;
+            transition: var(--transition);
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
+        }
+
+        .service-icon {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .service-card h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .service-card p {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* PORTFOLIO (KEYSLAR) */
+        .portfolio {
+            padding: 100px 8%;
+            background: #090d16;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .portfolio-item {
+            background-color: var(--panel-bg);
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .portfolio-item:hover {
+            transform: scale(1.02);
+        }
+
+        .portfolio-img {
+            height: 220px;
+            background: linear-gradient(135deg, #1e1b4b, #311042);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .portfolio-info {
+            padding: 25px;
+        }
+
+        .portfolio-info h4 {
+            font-size: 18px;
             margin-bottom: 10px;
-            font-weight: 700;
+        }
+
+        .portfolio-info p {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* ALOQA FORMASI (CONTACT) */
+        .contact {
+            padding: 100px 8%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .contact-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 50px;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .contact-card h3 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
         }
 
         .form-group {
             margin-bottom: 20px;
-            text-align: left;
         }
 
         .form-group label {
@@ -90,615 +257,402 @@
 
         .form-control {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 15px;
+            padding: 14px 18px;
+            background-color: #0b0f19;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: white;
             outline: none;
-            background-color: transparent;
-            color: inherit;
+            font-size: 15px;
+            transition: var(--transition);
         }
 
         .form-control:focus {
             border-color: var(--primary-color);
         }
 
-        .btn-login {
-            width: 100%;
-            padding: 12px;
-            background: var(--primary-color);
-            border: none;
-            color: #fff;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .btn-login:hover {
-            background: var(--primary-hover);
-        }
-
-        .login-error {
-            color: var(--danger-color);
-            margin-top: 15px;
-            font-size: 14px;
+        /* ==========================================
+           3. ADMIN PANEL QISMI (FAQAT SIZ UCHUN)
+           ========================================== */
+        #admin-panel {
             display: none;
-        }
-
-        /* ASOSIY INTERFEYS */
-        #admin-interface {
-            display: none;
-            width: 100%;
-            min-height: 100vh;
-            display: flex;
-        }
-
-        .sidebar {
-            width: var(--sidebar-width);
-            background-color: var(--panel-bg);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            height: 100vh;
-        }
-
-        .sidebar-brand {
-            padding: 24px;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--primary-color);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .sidebar-menu {
-            list-style: none;
-            padding: 20px 10px;
-            flex-grow: 1;
-        }
-
-        .sidebar-menu li {
-            margin-bottom: 8px;
-        }
-
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            color: var(--text-color);
-            text-decoration: none;
-            border-radius: var(--radius);
-            font-weight: 500;
-        }
-
-        .sidebar-menu a:hover, 
-        .sidebar-menu li.active a {
-            background-color: var(--primary-color);
-            color: #ffffff;
-        }
-
-        .main-content {
-            margin-left: var(--sidebar-width);
-            flex-grow: 1;
-            padding: 30px;
-            min-height: 100vh;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            background-color: var(--panel-bg);
-            padding: 15px 25px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-        }
-
-        /* TUGMALAR */
-        .btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 500;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-
-        .btn-primary { background-color: var(--primary-color); color: white; }
-        .btn-primary:hover { background-color: var(--primary-hover); }
-        .btn-danger { background-color: var(--danger-color); color: white; }
-        .btn-secondary { background-color: var(--border-color); color: var(--text-color); }
-
-        /* VIDJETLAR / STATISTIKA */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background-color: var(--panel-bg);
-            padding: 25px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .stat-title {
-            color: var(--text-muted);
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .stat-value {
-            font-size: 32px;
-            font-weight: 700;
-        }
-
-        /* JADVALLAR */
-        .content-card {
-            background-color: var(--panel-bg);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 25px;
-            margin-bottom: 30px;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
-        th, td {
-            padding: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        th {
-            background-color: rgba(0, 0, 0, 0.02);
-            color: var(--text-muted);
-        }
-
-        .badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .badge-success { background-color: rgba(16, 185, 129, 0.15); color: var(--success-color); }
-        .badge-danger { background-color: rgba(239, 68, 68, 0.15); color: var(--danger-color); }
-
-        /* MODALLAR */
-        .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: var(--bg-color);
+            z-index: 1000;
+            padding: 40px 8%;
+            overflow-y: auto;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background-color: var(--panel-bg);
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .leads-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--panel-bg);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .leads-table th, .leads-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .leads-table th {
+            background-color: rgba(0, 0, 0, 0.2);
+            color: var(--text-muted);
+        }
+
+        /* LOGIN MODAL (ADMIN PANELGA KIRISH) */
+        .login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 999;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: var(--transition);
         }
 
-        .modal.active {
+        .login-modal.active {
             opacity: 1;
             pointer-events: auto;
         }
 
-        .modal-content {
-            background-color: var(--panel-bg);
-            padding: 30px;
-            border-radius: var(--radius);
-            width: 90%;
-            max-width: 500px;
-            box-shadow: var(--shadow);
-        }
-
-        .page-section {
-            display: none;
-        }
-
-        .page-section.active {
-            display: block;
+        /* FOOOTER */
+        footer {
+            text-align: center;
+            padding: 40px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
 
-    <!-- KRIISH OYNASI (Parol: 12345) -->
-    <div id="login-page">
-        <div class="login-card">
-            <h2>Shaxsiy LMS Kirish</h2>
-            <p style="color: var(--text-muted); margin-bottom: 20px;">Faqat admin uchun shaxsiy tizim</p>
-            <form id="login-form">
+    <!-- ==========================================
+         NAVIGATSIYA
+         ========================================== -->
+    <header>
+        <a href="#" class="logo">⚡ INSAN.DEV</a>
+        <nav>
+            <a href="#services">Xizmatlar</a>
+            <a href="#portfolio">Keyslar</a>
+            <a href="#contact">Aloqa</a>
+            <!-- Maxfiy tugma: faqat siz bu orqali kirasiz -->
+            <a href="#" onclick="toggleLoginModal()" style="color: var(--text-muted); font-size: 12px;">🔑 Admin</a>
+        </nav>
+        <a href="#contact" class="btn-main">Loyihani boshlash</a>
+    </header>
+
+    <!-- ==========================================
+         HERO SECTION
+         ========================================== -->
+    <section class="hero">
+        <h1>Biznesingiz uchun mukammal<br><span style="background: linear-gradient(135deg, #a78bfa, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Raqamli Yechimlar</span></h1>
+        <p>Biz kompaniyalar uchun zamonaviy veb-saytlar, jozibador UX/UI dizayn va natija beruvchi qidiruv tizimi (SEO) xizmatlarini taklif qilamiz.</p>
+        <a href="#contact" class="btn-main" style="padding: 16px 36px; font-size: 16px;">Bepul maslahat olish</a>
+    </section>
+
+    <!-- ==========================================
+         XIZMATLAR (SERVICES)
+         ========================================== -->
+    <section class="services" id="services">
+        <h2 class="section-title">Biz ko'rsatadigan xizmatlar</h2>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">💻</div>
+                <h3>Veb-sayt yaratish</h3>
+                <p>Biznesingiz imidjini oshiruvchi, tezkor va mobil moslashuvchan korporativ saytlar hamda onlayn do'konlar.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">🎨</div>
+                <h3>UX/UI Dizayn</h3>
+                <p>Mijozlaringiz uchun qulay, intuitiv va yuqori vizual ko'rinishga ega zamonaviy veb va mobil interfeyslar.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">🚀</div>
+                <h3>SEO Optimizatsiya</h3>
+                <p>Google va boshqa qidiruv tizimlarida eng yuqori o'rinlarni egallash orqali bepul mijozlar oqimini jalb qilish.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">💎</div>
+                <h3>Logo & Brending</h3>
+                <p>Bozorda boshqalardan ajralib turish uchun korporativ identifikatsiya, logotip va brandbook yaratish.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         KEYSLAR (PORTFOLIO)
+         ========================================== -->
+    <section class="portfolio" id="portfolio">
+        <h2 class="section-title" style="text-align: center;">Bizning so'nggi ishlarimiz</h2>
+        <div class="portfolio-grid">
+            <div class="portfolio-item">
+                <div class="portfolio-img">🛍️</div>
+                <div class="portfolio-info">
+                    <h4>E-Commerce Platforma</h4>
+                    <p>Onlayn do'kon va to'lov tizimlarining to'liq integratsiyasi.</p>
+                </div>
+            </div>
+            <div class="portfolio-item">
+                <div class="portfolio-img">📊</div>
+                <div class="portfolio-info">
+                    <h4>Moliya Dashboardi</h4>
+                    <p>Kompaniya ichki hisob-kitoblari uchun jozibador UX/UI dizayn.</p>
+                </div>
+            </div>
+            <div class="portfolio-item">
+                <div class="portfolio-img">📱</div>
+                <div class="portfolio-info">
+                    <h4>O'quv Markazi Sayti</h4>
+                    <p>LMS tizimi va darslarni onlayn sotish platformasi.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         ALOQA FORMASI (CONTACT)
+         ========================================== -->
+    <section class="contact" id="contact">
+        <div class="contact-card">
+            <h3>Loyihangizni muhokama qilamiz!</h3>
+            <form id="lead-form">
+                <div class="form-group">
+                    <label>Ismingiz</label>
+                    <input type="text" id="lead-name" class="form-control" placeholder="Ismingizni kiriting" required>
+                </div>
+                <div class="form-group">
+                    <label>Telefon raqamingiz</label>
+                    <input type="tel" id="lead-phone" class="form-control" placeholder="+998 90 123 45 67" required>
+                </div>
+                <div class="form-group">
+                    <label>Sizga qaysi xizmat kerak?</label>
+                    <select id="lead-service" class="form-control" style="background-color: #0b0f19;">
+                        <option value="Veb-sayt qurish">Veb-sayt yaratish</option>
+                        <option value="UX/UI Dizayn">UX/UI Dizayn</option>
+                        <option value="SEO Optimizatsiya">SEO Optimizatsiya</option>
+                        <option value="Logo & Brending">Logo & Brending</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Loyiha haqida qisqacha (ixtiyoriy)</label>
+                    <textarea id="lead-msg" class="form-control" rows="4" placeholder="Loyihangiz haqida yozing..."></textarea>
+                </div>
+                <button type="submit" class="btn-main" style="width: 100%;">Buyurtma yuborish 🚀</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 INSAN.DEV. Barcha huquqlar himoyalangan.</p>
+    </footer>
+
+    <!-- ==========================================
+         ADMIN KRIISH OYNASI (MODAL)
+         ========================================== -->
+    <div class="login-modal" id="login-modal">
+        <div class="contact-card" style="max-width: 400px; position: relative;">
+            <button onclick="toggleLoginModal()" style="position: absolute; right: 20px; top: 20px; background: none; border: none; color: white; font-size: 24px; cursor: pointer;">&times;</button>
+            <h3 style="margin-bottom: 20px;">Tizimga kirish</h3>
+            <form id="admin-login-form">
                 <div class="form-group">
                     <label>Login (admin)</label>
-                    <input type="text" id="login-username" class="form-control" required value="admin">
+                    <input type="text" id="admin-user" class="form-control" required value="admin">
                 </div>
                 <div class="form-group">
                     <label>Parol (12345)</label>
-                    <input type="password" id="login-password" class="form-control" required value="12345">
+                    <input type="password" id="admin-pass" class="form-control" required value="12345">
                 </div>
-                <button type="submit" class="btn-login">Panelga kirish 🗝️</button>
-                <div id="login-error" class="login-error">Login yoki parol xato!</div>
+                <button type="submit" class="btn-main" style="width: 100%;">Kirish 🗝️</button>
             </form>
         </div>
     </div>
 
-    <!-- ASOSIY INTERFEYS -->
-    <div id="admin-interface">
-        
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <span>🎓 EduControl</span>
+    <!-- ==========================================
+         MAXFIY ADMIN PANEL INTERFEYSI
+         ========================================== -->
+    <div id="admin-panel">
+        <div class="admin-header">
+            <h2>📊 Buyurtmalarni boshqarish paneli</h2>
+            <div>
+                <button class="btn-main" onclick="logoutAdmin()" style="background: var(--danger-color); background-color: #ef4444;">Chiqish 🚪</button>
             </div>
-            <ul class="sidebar-menu">
-                <li class="active" data-page="dashboard"><a href="#">📊 Bosh sahifa</a></li>
-                <li data-page="students"><a href="#">👥 O'quvchilar</a></li>
-                <li data-page="settings"><a href="#">⚙️ Sozlamalar</a></li>
-            </ul>
-            <div style="padding: 20px; border-top: 1px solid var(--border-color);">
-                <button class="btn btn-danger" style="width: 100%;" id="btn-logout">Chiqish 🚪</button>
+        </div>
+
+        <div class="admin-stats">
+            <div class="stat-card">
+                <p style="color: var(--text-muted); font-size: 14px;">Jami buyurtmalar</p>
+                <h3 id="stat-total-leads" style="font-size: 32px; font-weight: 700; margin-top: 10px;">0 ta</h3>
             </div>
-        </aside>
+            <div class="stat-card">
+                <p style="color: var(--text-muted); font-size: 14px;">Bugungi yangi so'rovlar</p>
+                <h3 id="stat-new-leads" style="font-size: 32px; font-weight: 700; margin-top: 10px; color: #10b981;">0 ta</h3>
+            </div>
+        </div>
 
-        <main class="main-content">
-            <header class="header">
-                <h2 id="page-title">📊 Bosh sahifa</h2>
-                <div>
-                    <button class="btn btn-secondary" id="btn-theme-toggle">🌙 Rejim</button>
-                    <span style="margin-left: 15px; font-weight: 600;" id="header-username">Admin</span>
-                </div>
-            </header>
-
-            <!-- BOSH SAHIFA (DASHBOARD) -->
-            <section id="page-dashboard" class="page-section active">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <span class="stat-title">Jami O'quvchilar</span>
-                        <span class="stat-value" id="stat-total-students">0</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-title">Aktiv Kurslar</span>
-                        <span class="stat-value">7 ta</span>
-                        <span style="font-size: 12px; color: var(--text-muted);">Savodxonlik, Word, Excel, HTML, CSS, Java, React</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-title">Jami to'lovlar summasi</span>
-                        <span class="stat-value" id="stat-total-payments">0 UZS</span>
-                    </div>
-                </div>
-
-                <div class="content-card">
-                    <h3>Kurslar bo'yicha o'quvchilar taqsimoti</h3>
-                    <br>
-                    <table id="courses-summary-table">
-                        <thead>
-                            <tr>
-                                <th>Kurs Nomi</th>
-                                <th>O'quvchilar soni</th>
-                                <th>Holat</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- JS orqali to'ldiriladi -->
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- O'QUVCHILAR RO'YXATI -->
-            <section id="page-students" class="page-section">
-                <div class="content-card">
-                    <div class="card-header">
-                        <h3>O'quvchilar bazasi</h3>
-                        <button class="btn btn-primary" onclick="openModal('modal-add-student')">➕ Yangi o'quvchi</button>
-                    </div>
-                    <div class="table-responsive">
-                        <table id="students-table">
-                            <thead>
-                                <tr>
-                                    <th>F.I.SH</th>
-                                    <th>Kurs</th>
-                                    <th>Telefon</th>
-                                    <th>To'lov holati</th>
-                                    <th>Amallar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SOZLAMALAR -->
-            <section id="page-settings" class="page-section">
-                <div class="content-card">
-                    <h3>Shaxsiy Admin Sozlamalari</h3>
-                    <br>
-                    <form id="settings-form">
-                        <div class="form-group">
-                            <label>Yangi Admin Login</label>
-                            <input type="text" id="settings-username" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Yangi Parol</label>
-                            <input type="password" id="settings-password" class="form-control" placeholder="Yangi parolni kiriting">
-                        </div>
-                        <button type="submit" class="btn btn-primary">💾 Saqlash</button>
-                    </form>
-                </div>
-            </section>
-
-        </main>
-    </div>
-
-    <!-- O'QUVCHI QO'SHISH MODALI -->
-    <div id="modal-add-student" class="modal">
-        <div class="modal-content">
-            <h3 style="margin-bottom: 20px;">Yangi o'quvchi qo'shish</h3>
-            <form id="add-student-form">
-                <div class="form-group">
-                    <label>O'quvchi ismi va familiyasi</label>
-                    <input type="text" id="add-student-name" class="form-control" required placeholder="Masalan: Behruz Aliyev">
-                </div>
-                <div class="form-group">
-                    <label>Kursni tanlang</label>
-                    <select id="add-student-course" class="form-control">
-                        <option value="Savodxonlik kursi">Savodxonlik kursi</option>
-                        <option value="MS Word">MS Word</option>
-                        <option value="MS Excel">MS Excel</option>
-                        <option value="HTML & CSS">HTML & CSS</option>
-                        <option value="Java">Java</option>
-                        <option value="React">React</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Telefon raqami</label>
-                    <input type="text" id="add-student-phone" class="form-control" required placeholder="+998 90 123 45 67">
-                </div>
-                <div class="form-group">
-                    <label>To'lov miqdori (UZS)</label>
-                    <input type="number" id="add-student-payment" class="form-control" required placeholder="Masalan: 300000" min="0">
-                </div>
-                <div class="form-group">
-                    <label>To'lov holati</label>
-                    <select id="add-student-status" class="form-control">
-                        <option value="To'langan">To'langan ✅</option>
-                        <option value="To'lanmagan">To'lanmagan ❌</option>
-                    </select>
-                </div>
-                <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-add-student')">Bekor qilish</button>
-                    <button type="submit" class="btn btn-primary">Qo'shish</button>
-                </div>
-            </form>
+        <div class="contact-card" style="max-width: 100%; padding: 30px;">
+            <h3 style="text-align: left; margin-bottom: 20px;">Mijozlar buyurtmalari</h3>
+            <table class="leads-table">
+                <thead>
+                    <tr>
+                        <th>Ism</th>
+                        <th>Telefon</th>
+                        <th>Sohasi</th>
+                        <th>Izoh</th>
+                        <th>Amal</th>
+                    </tr>
+                </thead>
+                <tbody id="leads-list">
+                    <!-- Dinamik ravishda mijozlar keladi -->
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- SCIPT -->
+    <!-- ==========================================
+         JAVASCRIPT LOGIKA
+         ========================================== -->
     <script>
-        const defaultStudents = [
-            { id: 1, name: "Sardor Karimov", course: "HTML & CSS", phone: "+998 99 123 45 67", payment: 400000, status: "To'langan" },
-            { id: 2, name: "Asal Toshpulatova", course: "Savodxonlik kursi", phone: "+998 90 765 43 21", payment: 200000, status: "To'langan" },
-            { id: 3, name: "Dilshod Baxtiyorov", course: "Java", phone: "+998 93 444 55 66", payment: 600000, status: "To'lanmagan" }
+        // Namunaviy mijozlar bazasi
+        const defaultLeads = [
+            { id: 1, name: "Farrux Alimov", phone: "+998 94 444 22 11", service: "Veb-sayt qurish", msg: "Kompaniyamiz uchun yangi landing page kerak edi." },
+            { id: 2, name: "Zilola Baxtiyorova", phone: "+998 90 999 88 77", service: "UX/UI Dizayn", msg: "Mobil ilovamiz ko'rinishini zamonaviy qilib yangilash kerak." }
         ];
 
-        const coursesList = [
-            "Savodxonlik kursi",
-            "MS Word",
-            "MS Excel",
-            "HTML & CSS",
-            "Java",
-            "React"
-        ];
-
-        function getStudents() {
-            if(!localStorage.getItem('my_students')) {
-                localStorage.setItem('my_students', JSON.stringify(defaultStudents));
+        function getLeads() {
+            if(!localStorage.getItem('agency_leads')) {
+                localStorage.setItem('agency_leads', JSON.stringify(defaultLeads));
             }
-            return JSON.parse(localStorage.getItem('my_students'));
+            return JSON.parse(localStorage.getItem('agency_leads'));
         }
 
-        function setStudents(students) {
-            localStorage.setItem('my_students', JSON.stringify(students));
+        function setLeads(leads) {
+            localStorage.setItem('agency_leads', JSON.stringify(leads));
         }
 
-        function getSystemSettings() {
-            const defaults = { username: 'admin', password: '123' }; // Standart kirish
-            if(!localStorage.getItem('system_settings')) {
-                localStorage.setItem('system_settings', JSON.stringify(defaults));
-            }
-            return JSON.parse(localStorage.getItem('system_settings'));
-        }
+        // MIJOZ BUYURTMA YUBORISHI (CREATE)
+        document.getElementById('lead-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const leads = getLeads();
+            const newLead = {
+                id: Date.now(),
+                name: document.getElementById('lead-name').value,
+                phone: document.getElementById('lead-phone').value,
+                service: document.getElementById('lead-service').value,
+                msg: document.getElementById('lead-msg').value
+            };
 
-        // LOGIN SESSLYASI
-        const loginForm = document.getElementById('login-form');
-        const loginPage = document.getElementById('login-page');
-        const adminInterface = document.getElementById('admin-interface');
-        const loginError = document.getElementById('login-error');
-
-        window.addEventListener('load', () => {
-            if(sessionStorage.getItem('isLoggedIn') === 'true') {
-                showAdminPanel();
-            } else {
-                loginPage.style.display = 'flex';
-                adminInterface.style.display = 'none';
-            }
+            leads.push(newLead);
+            setLeads(leads);
+            
+            alert("Rahmat! Arizangiz muvaffaqiyatli qabul qilindi. Tez orada siz bilan bog'lanamiz. ✨");
+            this.reset();
+            renderLeads();
         });
 
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const enteredUser = document.getElementById('login-username').value;
-            const enteredPass = document.getElementById('login-password').value;
-            const settings = getSystemSettings();
+        // ADMIN PANEL LOGIKA
+        function toggleLoginModal() {
+            document.getElementById('login-modal').classList.toggle('active');
+        }
 
-            if(enteredUser === settings.username && enteredPass === settings.password) {
-                sessionStorage.setItem('isLoggedIn', 'true');
+        document.getElementById('admin-login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const user = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
+
+            if(user === 'admin' && pass === '12345') {
+                sessionStorage.setItem('isAdminLoggedIn', 'true');
+                toggleLoginModal();
                 showAdminPanel();
             } else {
-                loginError.style.display = 'block';
-                setTimeout(() => { loginError.style.display = 'none'; }, 3000);
+                alert("Xato login yoki parol!");
             }
         });
 
         function showAdminPanel() {
-            loginPage.style.display = 'none';
-            adminInterface.style.display = 'flex';
-            document.body.style.display = 'flex';
-            const settings = getSystemSettings();
-            document.getElementById('header-username').innerText = settings.username;
-            document.getElementById('settings-username').value = settings.username;
-            updateDashboard();
-            renderStudents();
+            document.getElementById('admin-panel').style.display = 'block';
+            renderLeads();
         }
 
-        document.getElementById('btn-logout').addEventListener('click', () => {
-            sessionStorage.removeItem('isLoggedIn');
-            location.reload();
-        });
-
-        // REJIM O'ZGARTIRISH
-        const themeBtn = document.getElementById('btn-theme-toggle');
-        if(localStorage.getItem('dark-theme') === 'true') {
-            document.body.classList.add('dark-theme');
-        }
-        themeBtn.addEventListener('click', () => {
-            document.body.classList.toggle('dark-theme');
-            localStorage.setItem('dark-theme', document.body.classList.contains('dark-theme'));
-        });
-
-        // ROUTING
-        const sidebarItems = document.querySelectorAll('.sidebar-menu li');
-        const pageSections = document.querySelectorAll('.page-section');
-        sidebarItems.forEach(item => {
-            item.addEventListener('click', function() {
-                sidebarItems.forEach(li => li.classList.remove('active'));
-                this.classList.add('active');
-                const targetPage = this.getAttribute('data-page');
-                pageSections.forEach(section => {
-                    section.classList.remove('active');
-                    if(section.id === `page-${targetPage}`) section.classList.add('active');
-                });
-                document.getElementById('page-title').innerText = this.innerText;
-                if(targetPage === 'dashboard') updateDashboard();
-                if(targetPage === 'students') renderStudents();
-            });
-        });
-
-        // DASHBOARD VA TAQSIMOT
-        function updateDashboard() {
-            const students = getStudents();
-            document.getElementById('stat-total-students').innerText = students.length + " ta";
-
-            const totalPaid = students
-                .filter(s => s.status === "To'langan")
-                .reduce((acc, s) => acc + parseFloat(s.payment), 0);
-            document.getElementById('stat-total-payments').innerText = totalPaid.toLocaleString() + " UZS";
-
-            // Taqsimot jadvalini to'ldirish
-            const tbody = document.getElementById('courses-summary-table').getElementsByTagName('tbody')[0];
-            tbody.innerHTML = '';
-            
-            coursesList.forEach(course => {
-                const count = students.filter(s => s.course === course).length;
-                const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td><strong>${course}</strong></td>
-                    <td>${count} nafar o'quvchi</td>
-                    <td><span class="badge ${count > 0 ? 'badge-success' : 'badge-danger'}">${count > 0 ? 'Aktiv' : 'O\'quvchi yo\'q'}</span></td>
-                `;
-            });
+        function logoutAdmin() {
+            sessionStorage.removeItem('isAdminLoggedIn');
+            document.getElementById('admin-panel').style.display = 'none';
         }
 
-        // STUDENT RENDERING
-        function renderStudents() {
-            const students = getStudents();
-            const tbody = document.getElementById('students-table').getElementsByTagName('tbody')[0];
+        // MA'LUMOTLARNI CHIQARISH (READ)
+        function renderLeads() {
+            const leads = getLeads();
+            document.getElementById('stat-total-leads').innerText = leads.length + " ta";
+            document.getElementById('stat-new-leads').innerText = leads.slice(-2).length + " ta yangi";
+
+            const tbody = document.getElementById('leads-list');
             tbody.innerHTML = '';
 
-            students.forEach(student => {
+            leads.forEach(lead => {
                 const row = tbody.insertRow();
-                const statusClass = student.status === "To'langan" ? 'badge-success' : 'badge-danger';
                 row.innerHTML = `
-                    <td><strong>${student.name}</strong></td>
-                    <td>${student.course}</td>
-                    <td>${student.phone}</td>
-                    <td><span class="badge ${statusClass}">${student.status} (${student.payment.toLocaleString()} UZS)</span></td>
+                    <td><strong>${lead.name}</strong></td>
+                    <td><a href="tel:${lead.phone}" style="color: var(--accent-color); text-decoration: none;">${lead.phone}</a></td>
+                    <td><span style="background-color: var(--primary-hover); padding: 4px 8px; border-radius: 6px; font-size: 12px;">${lead.service}</span></td>
+                    <td>${lead.msg || 'Izoh qoldirilmagan'}</td>
                     <td>
-                        <button class="btn btn-danger" onclick="deleteStudent(${student.id})" style="padding: 5px 10px;">🗑️ O'chirish</button>
+                        <button onclick="deleteLead(${lead.id})" style="background-color: #ef4444; border: none; padding: 6px 12px; color: white; border-radius: 6px; cursor: pointer;">O'chirish 🗑️</button>
                     </td>
                 `;
             });
         }
 
-        // CRUD
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-        document.getElementById('add-student-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const students = getStudents();
-            const newStudent = {
-                id: Date.now(),
-                name: document.getElementById('add-student-name').value,
-                course: document.getElementById('add-student-course').value,
-                phone: document.getElementById('add-student-phone').value,
-                payment: parseFloat(document.getElementById('add-student-payment').value) || 0,
-                status: document.getElementById('add-student-status').value
-            };
-            students.push(newStudent);
-            setStudents(students);
-            closeModal('modal-add-student');
-            this.reset();
-            renderStudents();
-            updateDashboard();
-        });
-
-        function deleteStudent(id) {
-            if(confirm("Ushbu o'quvchini ro'yxatdan o'chirmoqchimisiz?")) {
-                let students = getStudents();
-                students = students.filter(s => s.id !== id);
-                setStudents(students);
-                renderStudents();
-                updateDashboard();
+        // O'CHIRISH (DELETE)
+        function deleteLead(id) {
+            if(confirm("Ushbu so'rovni o'chirmoqchimisiz?")) {
+                let leads = getLeads();
+                leads = leads.filter(l => l.id !== id);
+                setLeads(leads);
+                renderLeads();
             }
         }
 
-        document.getElementById('settings-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const newUsername = document.getElementById('settings-username').value;
-            const newPassword = document.getElementById('settings-password').value;
-            const settings = getSystemSettings();
-            settings.username = newUsername;
-            if(newPassword.trim() !== '') settings.password = newPassword;
-            localStorage.setItem('system_settings', JSON.stringify(settings));
-            alert("Sozlamalar saqlandi!");
-            showAdminPanel();
+        // Seansni doimiy saqlash
+        window.addEventListener('load', () => {
+            if(sessionStorage.getItem('isAdminLoggedIn') === 'true') {
+                showAdminPanel();
+            }
         });
     </script>
 </body>
