@@ -421,7 +421,7 @@
 
     <!-- NAVIGATSIYA -->
     <header>
-        <a href="#" class="logo">⚡ KING_777_OKENG</a>
+        <a href="#" class="logo">⚡ INSAN.DEV</a>
         <nav>
             <a href="#services">Xizmatlar</a>
             <a href="#courses">Kurslar</a>
@@ -461,7 +461,7 @@
         </div>
     </section>
 
-    <!-- 2. KURSLAR BO'LIMI (Ustiga bosganda video darslar ochiladi) -->
+    <!-- 2. KURSLAR BO'LIMI -->
     <section class="section-padding" id="courses" style="background-color: #090d16; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
         <h2 class="section-title">Bizning o'quv kurslarimiz</h2>
         <p class="section-subtitle">Videodarslarni tomosha qilish uchun istalgan kurs kartochkasini bosing! 🎬</p>
@@ -521,20 +521,17 @@
     <!-- O'QUVCHI UCHUN VIDEOLARNI KO'RISH MODAL OYNASI -->
     <div class="video-modal" id="video-modal">
         <div class="video-container">
-            <!-- Yopish tugmasi -->
             <button onclick="closeVideoModal()" style="position: absolute; right: 15px; top: 15px; background: red; border: none; color: white; padding: 5px 10px; border-radius: 5px; cursor: pointer; z-index: 10;">Yopish &times;</button>
             
-            <!-- Video pleyer qismi -->
             <div class="video-player-side">
                 <iframe id="main-video-player" src="" allowfullscreen></iframe>
                 <h3 id="playing-video-title" style="margin-top: 15px; font-size: 18px;">Hozir ijro etilmoqda...</h3>
             </div>
 
-            <!-- Darslar ro'yxati -->
             <div class="video-playlist-side">
                 <h4 id="course-playlist-title" class="playlist-title">Kurs darslari</h4>
                 <div id="playlist-items-container">
-                    <!-- Dinamik darsliklar ro'yxati chiqadi -->
+                    <!-- Dinamik darsliklar ro'yxati -->
                 </div>
             </div>
         </div>
@@ -615,7 +612,6 @@
         </div>
 
         <div class="admin-sections">
-            <!-- ALOQA SO'ROVLARI JADVALI -->
             <div class="contact-card" style="max-width: 100%; padding: 25px;">
                 <h3 style="text-align: left; margin-bottom: 20px;">Kelib tushgan arizalar</h3>
                 <table class="leads-table">
@@ -633,7 +629,6 @@
                 </table>
             </div>
 
-            <!-- DARSLIK VIDEOLARINI QO'SHISH BO'LIMI -->
             <div class="contact-card" style="max-width: 100%; padding: 25px;">
                 <h3 style="text-align: left; margin-bottom: 15px;">Darslarni boshqarish 🎬</h3>
                 <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
@@ -674,19 +669,37 @@
 
     <!-- JAVASCRIPT LOGIKA -->
     <script>
-        // Namunaviy arizalar bazasi
         const defaultLeads = [
             { id: 1, name: "Asilbek To'rayev", phone: "+998 90 987 65 43", service: "HTML & CSS kursi", msg: "Kurs qachon boshlanadi?" }
         ];
 
-        // Standart boshlang'ich video darslar ro'yxati (Agar hali qo'shilmagan bo'lsa)
+        // 🎬 HAR BIR KURS UCHUN TAYYOR VIDEODARSLAR RO'YXATI
         const defaultVideos = [
-            { id: 1, course: "HTML & CSS", title: "1-Dars: HTML haqida tushuncha", url: "https://www.youtube.com/embed/mU6an7qMCsc" },
-            { id: 2, course: "HTML & CSS", title: "2-Dars: CSS nima va u qanday ishlaydi", url: "https://www.youtube.com/embed/1Rs2ND1ryYc" },
-            { id: 3, course: "Savodxonlik kursi", title: "1-Dars: Windows tizimini sozlash", url: "https://www.youtube.com/embed/Xqg9gN3t8jE" }
+            // Savodxonlik kursi
+            { id: 1, course: "Savodxonlik kursi", title: "1-Dars: Kompyuter savodxonligi kirish", url: "https://www.youtube.com/embed/g6Pez9p6Xo4" },
+            { id: 2, course: "Savodxonlik kursi", title: "2-Dars: Windows tizimi va Fayllar bilan ishlash", url: "https://www.youtube.com/embed/Xqg9gN3t8jE" },
+            
+            // MS Word
+            { id: 3, course: "MS Word", title: "1-Dars: Word dasturiga kirish va interfeys", url: "https://www.youtube.com/embed/5F4mEw6zM7k" },
+            { id: 4, course: "MS Word", title: "2-Dars: Matnlarga chiroyli stil berish", url: "https://www.youtube.com/embed/3LqFvS3k6lA" },
+
+            // MS Excel
+            { id: 5, course: "MS Excel", title: "1-Dars: Excel dasturida ishlashni o'rganamiz", url: "https://www.youtube.com/embed/p1u8IuR62Hw" },
+            { id: 6, course: "MS Excel", title: "2-Dars: Excelda formulalar yaratish va hisoblash", url: "https://www.youtube.com/embed/m-gZ9-1WpxI" },
+
+            // HTML & CSS
+            { id: 7, course: "HTML & CSS", title: "1-Dars: HTML nima? Kirish va boshlang'ich teglar", url: "https://www.youtube.com/embed/mU6an7qMCsc" },
+            { id: 8, course: "HTML & CSS", title: "2-Dars: CSS orqali veb-saytga dizayn berish", url: "https://www.youtube.com/embed/1Rs2ND1ryYc" },
+
+            // Java
+            { id: 9, course: "Java", title: "1-Dars: Java dasturlash tili va JDK o'rnatish", url: "https://www.youtube.com/embed/Ke90Tje7VS0" },
+            { id: 10, course: "Java", title: "2-Dars: Java-da Ma'lumot turlari va o'zgaruvchilar", url: "https://www.youtube.com/embed/6_54vN_qj3k" },
+
+            // React
+            { id: 11, course: "React", title: "1-Dars: React nima va nima uchun kerak?", url: "https://www.youtube.com/embed/SqcY0GlETPk" },
+            { id: 12, course: "React", title: "2-Dars: React-da Component va Props tushunchalari", url: "https://www.youtube.com/embed/Ke90Tje7VS0" }
         ];
 
-        // LOCALSTORAGE BILAN ISHLASH
         function getLeads() {
             if(!localStorage.getItem('agency_leads')) {
                 localStorage.setItem('agency_leads', JSON.stringify(defaultLeads));
@@ -698,8 +711,10 @@
             localStorage.setItem('agency_leads', JSON.stringify(leads));
         }
 
+        // AGAR BROWSER XOTIRASIDA VIDEOLAR YO'Q BO'LSA YOKI KAM BO'LSA - STANDART VIDEOLARNI QO'SHADI
         function getVideos() {
-            if(!localStorage.getItem('agency_videos')) {
+            const stored = localStorage.getItem('agency_videos');
+            if(!stored || JSON.parse(stored).length < 8) { 
                 localStorage.setItem('agency_videos', JSON.stringify(defaultVideos));
             }
             return JSON.parse(localStorage.getItem('agency_videos'));
@@ -718,7 +733,6 @@
             const service = document.getElementById('lead-service').value;
             const msg = document.getElementById('lead-msg').value;
 
-            // 1. POCHTAGA AVTOMATIK XAT YUBORISH
             fetch("https://formsubmit.co/ajax/suhrobbekqayumov@gmail.com", {
                 method: "POST",
                 headers: {
@@ -736,7 +750,6 @@
             .then(data => console.log("Pochtaga yuborildi!"))
             .catch(err => console.error(err));
 
-            // 2. SAYT ADMIN PANELIGA SAQLASH
             const leads = getLeads();
             const newLead = { id: Date.now(), name, phone, service, msg };
             leads.push(newLead);
@@ -747,7 +760,7 @@
             renderLeads();
         });
 
-        // VIDEOLARNI KO'RISH MODALINI OCHISH (O'QUVCHILAR UCHUN)
+        // VIDEOLARNI KO'RISH MODALINI OCHISH
         function openCourseVideos(courseName) {
             const videos = getVideos().filter(v => v.course === courseName);
             const modal = document.getElementById('video-modal');
@@ -763,7 +776,6 @@
                 player.src = '';
                 playTitle.innerText = "Tez orada darslar yuklanadi...";
             } else {
-                // Birinchi videoni pleyerga yuklash
                 player.src = videos[0].url;
                 playTitle.innerText = videos[0].title;
 
@@ -785,10 +797,10 @@
 
         function closeVideoModal() {
             document.getElementById('video-modal').classList.remove('active');
-            document.getElementById('main-video-player').src = ''; // Videoni butunlay to'xtatish
+            document.getElementById('main-video-player').src = ''; 
         }
 
-        // ADMIN LOGIN LOGIKASI
+        // ADMIN LOGIN
         function toggleLoginModal() {
             document.getElementById('login-modal').classList.toggle('active');
         }
@@ -818,7 +830,7 @@
             document.getElementById('admin-panel').style.display = 'none';
         }
 
-        // ARIZALAR JADVALINI RENDIR QILISH
+        // ARIZALARNI CHIQARISH
         function renderLeads() {
             const leads = getLeads();
             const tbody = document.getElementById('leads-list');
@@ -846,14 +858,13 @@
             }
         }
 
-        // ADMIN PANELIDAN VIDEOLARNI BOSHQARISH (QO'SHISH VA O'CHIRISH)
+        // VIDEOLARNI ADMIN PANELDAN BOSHQARISH
         document.getElementById('add-video-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const course = document.getElementById('video-course-select').value;
             const title = document.getElementById('video-title-input').value;
             let url = document.getElementById('video-url-input').value;
 
-            // Havola faqat oddiy bo'lsa, uni avtomatik Embed holatiga keltirish
             if (url.includes("watch?v=")) {
                 url = url.replace("watch?v=", "embed/");
             }
