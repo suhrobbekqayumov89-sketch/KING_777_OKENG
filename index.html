@@ -3,16 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INSAN.DEV — Agentlik va Kurslar</title>
+    <title>INSAN AGENCY & ACADEMY</title>
+    <!-- Google Fonts (Plus Jakarta Sans) -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
+        /* ==========================================
+           1. ZAMONAVIY NEON & TO'Q RANGLAR DIZAYNI
+           ========================================== */
         :root {
             --bg-color: #0b0f19; 
             --panel-bg: #131c2e;
-            --primary-color: #6366f1; 
+            --primary-color: #6366f1; /* Neon binafsha */
             --primary-hover: #4f46e5;
-            --accent-color: #3b82f6; 
+            --accent-color: #3b82f6; /* Moviy */
             --text-color: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #1e293b;
@@ -34,6 +38,7 @@
             scroll-behavior: smooth;
         }
 
+        /* NAVIGATION BAR */
         header {
             position: fixed;
             top: 0;
@@ -90,7 +95,7 @@
             box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
         }
 
-        /* HERO */
+        /* HERO SECTION */
         .hero {
             min-height: 100vh;
             display: flex;
@@ -119,25 +124,33 @@
             margin-bottom: 35px;
         }
 
-        /* XIZMATLAR VA KURSLAR */
-        .section-title {
-            font-size: 36px;
-            font-weight: 800;
-            margin-bottom: 50px;
-            text-align: center;
-        }
-
-        .services {
+        /* BO'LIMLAR UCHUN UMUMIY SINF */
+        .section-padding {
             padding: 100px 8%;
         }
 
-        .services-grid {
+        .section-title {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 60px;
+            font-size: 16px;
+        }
+
+        .grid-layout {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 30px;
         }
 
-        .service-card {
+        /* KARTALR (SERVICES & COURSES) */
+        .card {
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color);
             padding: 40px 30px;
@@ -148,29 +161,30 @@
             overflow: hidden;
         }
 
-        .service-card:hover {
+        .card:hover {
             transform: translateY(-5px);
             border-color: var(--primary-color);
             box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
         }
 
-        .service-icon {
-            font-size: 32px;
+        .card-icon {
+            font-size: 36px;
             margin-bottom: 20px;
         }
 
-        .service-card h3 {
+        .card h3 {
             font-size: 20px;
             margin-bottom: 15px;
+            font-weight: 700;
         }
 
-        .service-card p {
+        .card p {
             color: var(--text-muted);
             font-size: 14px;
             line-height: 1.6;
         }
 
-        .badge-tag {
+        .badge {
             position: absolute;
             top: 20px;
             right: 20px;
@@ -182,11 +196,12 @@
             font-weight: 700;
         }
 
-        /* ALOQA */
+        /* ALOQA BO'LIMI (FORM) */
         .contact {
             padding: 100px 8%;
             display: flex;
             justify-content: center;
+            background: radial-gradient(circle at 50% 80%, rgba(59, 130, 246, 0.08), transparent 50%);
         }
 
         .contact-card {
@@ -200,7 +215,7 @@
 
         .contact-card h3 {
             font-size: 28px;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
             text-align: center;
         }
 
@@ -231,7 +246,7 @@
             border-color: var(--primary-color);
         }
 
-        /* ADMIN PANEL */
+        /* SHAXSIY ADMIN PANEL INTERFEYSI (FAQAT SIZ UCHUN) */
         #admin-panel {
             display: none;
             position: fixed;
@@ -260,6 +275,7 @@
             background-color: var(--panel-bg);
             border-radius: var(--radius);
             overflow: hidden;
+            margin-top: 20px;
         }
 
         .leads-table th, .leads-table td {
@@ -271,8 +287,10 @@
         .leads-table th {
             background-color: rgba(0, 0, 0, 0.2);
             color: var(--text-muted);
+            font-size: 14px;
         }
 
+        /* KIRISH MODALI */
         .login-modal {
             position: fixed;
             top: 0;
@@ -305,125 +323,137 @@
 </head>
 <body>
 
+    <!-- NAVIGATSIYA -->
     <header>
         <a href="#" class="logo">⚡ INSAN.DEV</a>
         <nav>
             <a href="#services">Xizmatlar</a>
             <a href="#courses">Kurslar</a>
-            <a href="#contact">Yozilish</a>
-            <a href="#" onclick="toggleLoginModal()" style="color: var(--text-muted); font-size: 12px;">🔑 Admin</a>
+            <a href="#contact">Ro'yxatdan o'tish</a>
+            <a href="#" onclick="toggleLoginModal()" style="color: var(--text-muted); font-size: 12px; margin-left: 40px;">🔑 Admin</a>
         </nav>
-        <a href="#contact" class="btn-main">Aloqa</a>
+        <a href="#contact" class="btn-main">Loyiha boshlash</a>
     </header>
 
-    <!-- HERO -->
+    <!-- HERO SECTION -->
     <section class="hero">
-        <h1>Raqamli xizmatlar va<br><span style="background: linear-gradient(135deg, #a78bfa, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Zamonaviy Kurslar</span></h1>
-        <p>Professional xizmatlar buyurtma qiling yoki noldan boshlab dasturlash va ofis dasturlarini biz bilan o'rganing.</p>
-        <a href="#contact" class="btn-main" style="padding: 16px 36px; font-size: 16px;">Ro'yxatdan o'tish</a>
+        <h1>Xizmatlar va Zamonaviy<br><span style="background: linear-gradient(135deg, #a78bfa, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">O'quv Kurslari</span></h1>
+        <p>Premium darajadagi raqamli xizmatlar hamda ofis dasturlari va dasturlashni noldan professional darajagacha o'rgatuvchi kurslar.</p>
+        <a href="#courses" class="btn-main" style="padding: 16px 36px; font-size: 16px;">Kurslarni tanlash</a>
     </section>
 
-    <!-- XIZMATLAR -->
-    <section class="services" id="services">
+    <!-- 1. XIZMATLAR BO'LIMI -->
+    <section class="section-padding" id="services">
         <h2 class="section-title">Biz ko'rsatadigan xizmatlar</h2>
-        <div class="services-grid">
-            <div class="service-card">
-                <div class="service-icon">💻</div>
+        <p class="section-subtitle">Biznesingiz rivoji uchun eng sara raqamli yechimlar</p>
+        <div class="grid-layout">
+            <div class="card">
+                <div class="card-icon">💻</div>
                 <h3>Veb-sayt yaratish</h3>
-                <p>Biznesingiz imidjini oshiruvchi korporativ saytlar hamda onlayn do'konlar.</p>
+                <p>Biznesingiz imidjini oshiruvchi, tezkor, xavfsiz va barcha qurilmalarga moslashuvchan saytlar.</p>
             </div>
-            <div class="service-card">
-                <div class="service-icon">🎨</div>
+            <div class="card">
+                <div class="card-icon">🎨</div>
                 <h3>UX/UI Dizayn</h3>
-                <p>Mijozlaringiz uchun qulay, intuitiv va zamonaviy mobil hamda veb interfeyslar.</p>
+                <p>Mijozlaringiz uchun qulay, intuitiv va yuqori vizual ko'rinishga ega zamonaviy interfeys dizayni.</p>
             </div>
-            <div class="service-card">
-                <div class="service-icon">🚀</div>
+            <div class="card">
+                <div class="card-icon">🚀</div>
                 <h3>SEO Optimizatsiya</h3>
-                <p>Google va qidiruv tizimlarida eng yuqori o'rinlarni egallash va mijoz yig'ish.</p>
+                <p>Google va boshqa qidiruv tizimlarida eng yuqori o'rinlarni egallash orqali bepul mijozlar oqimi.</p>
             </div>
         </div>
     </section>
 
-    <!-- KURSLARIMIZ (YANGI BO'LIM) -->
-    <section class="services" id="courses" style="background: #090d16;">
+    <!-- 2. KURSLAR BO'LIMI (KO'ZGA YAQQOL TASHLANADIGAN) -->
+    <section class="section-padding" id="courses" style="background-color: #090d16; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
         <h2 class="section-title">Bizning o'quv kurslarimiz</h2>
-        <div class="services-grid">
-            <div class="service-card">
-                <span class="badge-tag">Kurs</span>
-                <div class="service-icon">📚</div>
+        <p class="section-subtitle">O'zingizga mos yo'nalishni tanlang va professionalga aylaning</p>
+        <div class="grid-layout">
+            
+            <div class="card">
+                <span class="badge">Kurs</span>
+                <div class="card-icon">📚</div>
                 <h3>Savodxonlik kursi</h3>
-                <p>Kompyuterdan foydalanish, internet xavfsizligi va asosiy operatsion tizimlarni mukammal o'rganish.</p>
+                <p>Kompyuterning ishlash asoslari, Windows tizimi, internetdan to'g'ri va xavfsiz foydalanish saboqlari.</p>
             </div>
-            <div class="service-card">
-                <span class="badge-tag">Kurs</span>
-                <div class="service-icon">📝</div>
+
+            <div class="card">
+                <span class="badge">Kurs</span>
+                <div class="card-icon">📝</div>
                 <h3>MS Word</h3>
-                <p>Hujjatlar bilan professional ishlash, shartnomalar tuzish va matnlarni chiroyli formatlash.</p>
+                <p>Professional hujjatlar yaratish, shartnomalar, arizalar rasmiylashtirish va matnlar bilan mukammal ishlash.</p>
             </div>
-            <div class="service-card">
-                <span class="badge-tag">Kurs</span>
-                <div class="service-icon">📊</div>
+
+            <div class="card">
+                <span class="badge">Kurs</span>
+                <div class="card-icon">📊</div>
                 <h3>MS Excel</h3>
-                <p>Murakkab formulalar, hisobotlar, jadvallar, diagrammalar va ma'lumotlar tahlili.</p>
+                <p>Murakkab formulalar, hisobotlar, jadvallar, diagrammalar va ma'lumotlarni professional tahlil qilish.</p>
             </div>
-            <div class="service-card">
-                <span class="badge-tag">Kurs</span>
-                <div class="service-icon">🌐</div>
+
+            <div class="card">
+                <span class="badge">Kurs</span>
+                <div class="card-icon">🌐</div>
                 <h3>HTML & CSS</h3>
-                <p>Veb-saytlarning vizual qismini (front-end) noldan yaratish va responsive qilish.</p>
+                <p>Veb-sahifalarning vizual tuzilishini yaratish, saytlar dizaynini mukammal kodlash asoslari.</p>
             </div>
-            <div class="service-card">
-                <span class="badge-tag">Kurs</span>
-                <div class="service-icon">☕</div>
+
+            <div class="card">
+                <span class="badge">Kurs</span>
+                <div class="card-icon">☕</div>
                 <h3>Java</h3>
-                <p>Kuchli backend va murakkab logikaga ega dasturiy ta'minotlar yaratish asoslari.</p>
+                <p>Mustahkam, keng qamrovli va xavfsiz backend tizimlari hamda dasturiy ta'minotlar yaratish.</p>
             </div>
-            <div class="service-card">
-                <span class="badge-tag">Kurs</span>
-                <div class="service-icon">⚛️</div>
+
+            <div class="card">
+                <span class="badge">Kurs</span>
+                <div class="card-icon">⚛️</div>
                 <h3>React</h3>
-                <p>Zamonaviy bir sahifali veb-ilovalar (SPA) va dinamik interfeyslarni qurish.</p>
+                <p>Zamonaviy, dinamik va o'ta tezkor bir sahifali veb-ilovalarni (SPA) yaratish texnologiyasi.</p>
             </div>
+
         </div>
     </section>
 
-    <!-- ALOQA FORMASI (Emailga xabar yuboradigan qism) -->
+    <!-- ALOQA VA RO'YXATDAN O'TISH FORMASI -->
     <section class="contact" id="contact">
         <div class="contact-card">
-            <h3>Kursga yozilish / Loyiha buyurtma qilish</h3>
-            <p style="color: var(--text-muted); text-align: center; margin-bottom: 20px; font-size: 14px;">Arizangiz to'g'ridan-to'g'ri admin pochtasiga yuboriladi.</p>
+            <h3>Ariza qoldirish</h3>
+            <p style="color: var(--text-muted); text-align: center; margin-bottom: 25px; font-size: 14px;">Barcha arizalar pochtangizga va admin panelingizga yuboriladi.</p>
             
             <form id="lead-form">
                 <div class="form-group">
-                    <label>Ismingiz</label>
-                    <input type="text" id="lead-name" class="form-control" placeholder="Ismingizni kiriting" required>
+                    <label>F.I.SH (Ismingiz va familiyangiz)</label>
+                    <input type="text" id="lead-name" class="form-control" placeholder="Masalan: Behruz Aliyev" required>
                 </div>
                 <div class="form-group">
                     <label>Telefon raqamingiz</label>
                     <input type="tel" id="lead-phone" class="form-control" placeholder="+998 90 123 45 67" required>
                 </div>
                 <div class="form-group">
-                    <label>Sizga nima kerak?</label>
+                    <label>Sizga nima kerak? (Kurs yoki Xizmat)</label>
                     <select id="lead-service" class="form-control" style="background-color: #0b0f19;">
-                        <!-- Xizmatlar -->
-                        <option value="Xizmat: Veb-sayt qurish">Xizmat: Veb-sayt yaratish</option>
-                        <option value="Xizmat: UX/UI Dizayn">Xizmat: UX/UI Dizayn</option>
-                        <option value="Xizmat: SEO Optimizatsiya">Xizmat: SEO Optimizatsiya</option>
-                        <!-- Kurslar -->
-                        <option value="Kurs: Savodxonlik">Kurs: Savodxonlik kursi</option>
-                        <option value="Kurs: MS Word">Kurs: MS Word</option>
-                        <option value="Kurs: MS Excel">Kurs: MS Excel</option>
-                        <option value="Kurs: HTML & CSS">Kurs: HTML & CSS</option>
-                        <option value="Kurs: Java">Kurs: Java</option>
-                        <option value="Kurs: React">Kurs: React</option>
+                        <optgroup label="Yo'nalish / Kurslar">
+                            <option value="Savodxonlik kursi">Savodxonlik kursi</option>
+                            <option value="MS Word kursi">MS Word</option>
+                            <option value="MS Excel kursi">MS Excel</option>
+                            <option value="HTML & CSS kursi">HTML & CSS</option>
+                            <option value="Java dasturlash kursi">Java</option>
+                            <option value="React kutubxonasi kursi">React</option>
+                        </optgroup>
+                        <optgroup label="Raqamli Xizmatlar">
+                            <option value="Veb-sayt yaratish xizmati">Veb-sayt yaratish</option>
+                            <option value="UX/UI Dizayn xizmati">UX/UI Dizayn</option>
+                            <option value="SEO Optimizatsiya xizmati">SEO Optimizatsiya</option>
+                        </optgroup>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Qo'shimcha izoh yoki savollar</label>
-                    <textarea id="lead-msg" class="form-control" rows="4" placeholder="Masalan: Qachon boshlanadi? Narxi qancha?"></textarea>
+                    <label>Siz bilan bog'lanish uchun qo'shimcha izoh (ixtiyoriy)</label>
+                    <textarea id="lead-msg" class="form-control" rows="4" placeholder="Savollaringiz bo'lsa yozib qoldiring..."></textarea>
                 </div>
-                <button type="submit" class="btn-main" style="width: 100%;">Menga bog'lanishsin 🚀</button>
+                <button type="submit" class="btn-main" style="width: 100%;">Arizani yuborish 🚀</button>
             </form>
         </div>
     </section>
@@ -432,18 +462,18 @@
         <p>© 2026 INSAN.DEV. Barcha huquqlar himoyalangan.</p>
     </footer>
 
-    <!-- ADMIN PANELGA KIRISH -->
+    <!-- ADMIN LOG-IN OYNASI -->
     <div class="login-modal" id="login-modal">
         <div class="contact-card" style="max-width: 400px; position: relative;">
             <button onclick="toggleLoginModal()" style="position: absolute; right: 20px; top: 20px; background: none; border: none; color: white; font-size: 24px; cursor: pointer;">&times;</button>
-            <h3 style="margin-bottom: 20px;">Tizimga kirish</h3>
+            <h3 style="margin-bottom: 20px;">Admin tizimiga kirish</h3>
             <form id="admin-login-form">
                 <div class="form-group">
-                    <label>Login (admin)</label>
+                    <label>Login</label>
                     <input type="text" id="admin-user" class="form-control" required value="admin">
                 </div>
                 <div class="form-group">
-                    <label>Parol (12345)</label>
+                    <label>Parol (Hozirgi: 12345)</label>
                     <input type="password" id="admin-pass" class="form-control" required value="12345">
                 </div>
                 <button type="submit" class="btn-main" style="width: 100%;">Kirish 🗝️</button>
@@ -451,37 +481,39 @@
         </div>
     </div>
 
-    <!-- SHAXSIY ADMIN PANEL -->
+    <!-- FAQAT ADMIN KO'RADIGAN MAXFIY PANEL -->
     <div id="admin-panel">
         <div class="admin-header">
-            <h2>📊 Kelib tushgan buyurtmalar va arizalar</h2>
+            <h2>📊 Kelib tushgan arizalar (Admin panel)</h2>
             <div>
-                <button class="btn-main" onclick="logoutAdmin()" style="background-color: #ef4444;">Chiqish 🚪</button>
+                <button class="btn-main" onclick="logoutAdmin()" style="background: #ef4444;">Chiqish 🚪</button>
             </div>
         </div>
 
         <div class="contact-card" style="max-width: 100%; padding: 30px;">
+            <h3 style="text-align: left; margin-bottom: 20px;">O'quvchilar va Mijozlar ro'yxati</h3>
             <table class="leads-table">
                 <thead>
                     <tr>
-                        <th>Ism</th>
-                        <th>Telefon</th>
-                        <th>Tanlangan Kurs / Xizmat</th>
-                        <th>Xabar</th>
-                        <th>Amal</th>
+                        <th>F.I.SH</th>
+                        <th>Telefon raqami</th>
+                        <th>Tanlangan kurs / xizmat</th>
+                        <th>Qoldirilgan izoh</th>
+                        <th>Amallar</th>
                     </tr>
                 </thead>
                 <tbody id="leads-list">
-                    <!-- Dinamik ma'lumotlar -->
+                    <!-- Dynamic Leads will load here -->
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- JAVASCRIPT -->
+    <!-- JAVASCRIPT LOGIKA -->
     <script>
+        // Standart boshlang'ich ma'lumotlar
         const defaultLeads = [
-            { id: 1, name: "Farrux Alimov", phone: "+998 94 444 22 11", service: "Kurs: HTML & CSS", msg: "Kurs qachon va qayerda bo'ladi?" }
+            { id: 1, name: "Asilbek To'rayev", phone: "+998 90 987 65 43", service: "HTML & CSS kursi", msg: "Kurs qachon boshlanadi? Davomiyligi qancha?" }
         ];
 
         function getLeads() {
@@ -495,7 +527,7 @@
             localStorage.setItem('agency_leads', JSON.stringify(leads));
         }
 
-        // ARIZANI EMAILGA YUBORISH VA ADMIN PANELGA SAQLASH
+        // ARIZANI SAQLASH VA POCHTAGA YUBORISH
         document.getElementById('lead-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -504,7 +536,7 @@
             const service = document.getElementById('lead-service').value;
             const msg = document.getElementById('lead-msg').value;
 
-            // 1. POCHTAGA YUBORISH (Background API)
+            // 1. POCHTAGA AVTOMATIK XAT YUBORISH (suhrobbekqayumov@gmail.com)
             fetch("https://formsubmit.co/ajax/suhrobbekqayumov@gmail.com", {
                 method: "POST",
                 headers: {
@@ -513,18 +545,14 @@
                 },
                 body: JSON.stringify({
                     "Ism": name,
-                    "Telefon raqam": phone,
-                    "Tanlangan kurs yoki xizmat": service,
-                    "Xabar": msg
+                    "Telefon raqami": phone,
+                    "Tanlangan Kurs / Xizmat": service,
+                    "Xabar / Izoh": msg
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Email muvaffaqiyatli ketdi:", data);
-            })
-            .catch(err => {
-                console.error("Email yuborishda xatolik:", err);
-            });
+            .then(res => res.json())
+            .then(data => console.log("Pochtaga xabar yuborildi!", data))
+            .catch(err => console.error("Xatolik yuz berdi:", err));
 
             // 2. SAYT ADMIN PANELIGA SAQLASH
             const leads = getLeads();
@@ -537,13 +565,13 @@
             };
             leads.push(newLead);
             setLeads(leads);
-            
-            alert("Arizangiz muvaffaqiyatli qabul qilindi va suhrobbekqayumov@gmail.com pochtasiga yuborildi! ✨");
+
+            alert("Sizning arizangiz qabul qilindi va suhrobbekqayumov@gmail.com elektron pochtangizga yuborildi! 🚀");
             this.reset();
             renderLeads();
         });
 
-        // ADMIN PANEL LOGIKASI
+        // LOGIN MODAL FUNKSIYALARI
         function toggleLoginModal() {
             document.getElementById('login-modal').classList.toggle('active');
         }
@@ -572,6 +600,7 @@
             document.getElementById('admin-panel').style.display = 'none';
         }
 
+        // ARIZALARNI JADVALGA CHIQARISH
         function renderLeads() {
             const leads = getLeads();
             const tbody = document.getElementById('leads-list');
@@ -582,15 +611,16 @@
                 row.innerHTML = `
                     <td><strong>${lead.name}</strong></td>
                     <td><a href="tel:${lead.phone}" style="color: var(--accent-color); text-decoration: none;">${lead.phone}</a></td>
-                    <td><span style="background: var(--primary-hover); padding: 4px 8px; border-radius: 6px; font-size: 12px;">${lead.service}</span></td>
-                    <td>${lead.msg || 'Izoh qoldirilmagan'}</td>
+                    <td><span style="background-color: var(--primary-hover); padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 600;">${lead.service}</span></td>
+                    <td>${lead.msg || "Izoh qoldirilmagan"}</td>
                     <td>
-                        <button onclick="deleteLead(${lead.id})" style="background-color: #ef4444; border: none; padding: 6px 12px; color: white; border-radius: 6px; cursor: pointer;">O'chirish</button>
+                        <button onclick="deleteLead(${lead.id})" style="background-color: #ef4444; border: none; padding: 6px 12px; color: white; border-radius: 6px; cursor: pointer;">O'chirish 🗑️</button>
                     </td>
                 `;
             });
         }
 
+        // ARIZANI O'CHIRISH
         function deleteLead(id) {
             if(confirm("Ushbu arizani admin paneldan o'chirmoqchimisiz?")) {
                 let leads = getLeads();
@@ -600,6 +630,7 @@
             }
         }
 
+        // Brauzer yopilib ochilganda ham admin sessiyasini tekshirish
         window.addEventListener('load', () => {
             if(sessionStorage.getItem('isAdminLoggedIn') === 'true') {
                 showAdminPanel();
