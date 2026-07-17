@@ -1,918 +1,1320 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INSAN AGENCY & ACADEMY</title>
-    <!-- Google Fonts (Plus Jakarta Sans) -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-color: #0b0f19; 
-            --panel-bg: #131c2e;
-            --primary-color: #6366f1; 
-            --primary-hover: #4f46e5;
-            --accent-color: #3b82f6; 
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #1e293b;
-            --radius: 16px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEXUS — Immersive 3D Experience</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            overflow-x: hidden;
-            scroll-behavior: smooth;
-        }
+    :root {
+      --accent: #6c63ff;
+      --accent2: #00d4ff;
+      --bg: #010108;
+      --fg: #f0eeff;
+      --glass-bg: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.08);
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
-        /* NAVIGATION BAR */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 20px 8%;
-            background: rgba(11, 15, 25, 0.8);
-            backdrop-filter: blur(12px);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-            border-bottom: 1px solid var(--border-color);
-        }
+    html { scroll-behavior: auto; }
 
-        .logo {
-            font-size: 22px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-decoration: none;
-        }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
 
-        nav a {
-            color: var(--text-color);
-            text-decoration: none;
-            margin-left: 30px;
-            font-weight: 500;
-            font-size: 15px;
-            transition: var(--transition);
-        }
+    /* ─── PRELOADER ─────────────────────────────────────────────── */
+    #preloader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 2rem;
+    }
 
-        nav a:hover {
-            color: var(--primary-color);
-        }
+    #preloader .pre-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      font-weight: 300;
+      letter-spacing: 0.6em;
+      text-transform: uppercase;
+      color: var(--fg);
+      opacity: 0.9;
+    }
 
-        .btn-main {
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-            transition: var(--transition);
-        }
+    #preloader .pre-bar-wrap {
+      width: min(360px, 80vw);
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+      position: relative;
+      overflow: hidden;
+    }
 
-        .btn-main:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
-        }
+    #preloader .pre-bar {
+      position: absolute; top: 0; left: 0;
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 0.05s linear;
+    }
 
-        /* HERO SECTION */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 0 10%;
-            background: radial-gradient(circle at 50% 30%, rgba(99, 102, 241, 0.15), transparent 50%);
-        }
+    #preloader .pre-counter {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      opacity: 0.5;
+      font-weight: 300;
+    }
 
-        .hero h1 {
-            font-size: 56px;
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 20px;
-            background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+    /* ─── CANVAS ────────────────────────────────────────────────── */
+    #canvas-container {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none;
+    }
 
-        .hero p {
-            font-size: 18px;
-            color: var(--text-muted);
-            max-width: 600px;
-            margin-bottom: 35px;
-        }
+    #webgl {
+      width: 100%; height: 100%;
+      display: block;
+    }
 
-        .section-padding {
-            padding: 100px 8%;
-        }
+    /* ─── NAV ───────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 1.8rem 3rem;
+      display: flex; align-items: center; justify-content: space-between;
+      opacity: 0;
+    }
 
-        .section-title {
-            font-size: 36px;
-            font-weight: 800;
-            margin-bottom: 15px;
-            text-align: center;
-        }
+    nav .nav-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, var(--fg) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-        .section-subtitle {
-            text-align: center;
-            color: var(--text-muted);
-            margin-bottom: 60px;
-            font-size: 16px;
-        }
+    nav ul {
+      list-style: none;
+      display: flex; gap: 2.5rem;
+    }
 
-        .grid-layout {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-        }
+    nav ul li a {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: rgba(255,255,255,0.5);
+      font-weight: 300;
+      transition: color 0.3s;
+    }
+    nav ul li a:hover { color: var(--fg); }
 
-        /* KARTALAR */
-        .card {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            padding: 40px 30px;
-            border-radius: var(--radius);
-            text-align: left;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-        }
+    nav .nav-cta {
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 0.6rem 1.4rem;
+      border-radius: 999px;
+      cursor: pointer;
+      background: var(--glass-bg);
+      color: var(--fg);
+      transition: border-color 0.3s, background 0.3s;
+      backdrop-filter: blur(12px);
+    }
+    nav .nav-cta:hover {
+      border-color: var(--accent2);
+      background: rgba(0,212,255,0.08);
+    }
 
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary-color);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15);
-        }
+    /* ─── SCROLL CONTENT ────────────────────────────────────────── */
+    #scroll-content {
+      position: relative; z-index: 10;
+      pointer-events: none;
+    }
 
-        .card-icon {
-            font-size: 36px;
-            margin-bottom: 20px;
-        }
+    /* ─── SECTIONS ──────────────────────────────────────────────── */
+    section {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 6rem 3rem;
+      position: relative;
+    }
 
-        .card h3 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            font-weight: 700;
-        }
+    /* ─── HERO ──────────────────────────────────────────────────── */
+    .hero {
+      flex-direction: column;
+      text-align: center;
+      gap: 2rem;
+    }
 
-        .card p {
-            color: var(--text-muted);
-            font-size: 14px;
-            line-height: 1.6;
-        }
+    .hero-eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      font-weight: 400;
+      opacity: 0;
+      transform: translateY(20px);
+    }
 
-        .badge {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(99, 102, 241, 0.15);
-            color: var(--primary-color);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-        }
+    .hero-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(3.5rem, 9vw, 9rem);
+      font-weight: 700;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      overflow: hidden;
+    }
 
-        /* VIDEOLAR KO'RISH MODALI */
-        .video-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(5, 8, 16, 0.95);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1100;
-            padding: 40px;
-        }
+    .hero-title .word {
+      display: inline-block;
+      overflow: hidden;
+    }
+    .hero-title .word .char {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(110%);
+    }
 
-        .video-modal.active {
-            display: flex;
-        }
+    .hero-title span.grad {
+      background: linear-gradient(135deg, #ffffff 30%, var(--accent2) 70%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-        .video-container {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            width: 100%;
-            max-width: 1100px;
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            overflow: hidden;
-            height: 80vh;
-            position: relative;
-        }
+    .hero-sub {
+      font-size: clamp(0.85rem, 1.5vw, 1rem);
+      font-weight: 300;
+      color: rgba(255,255,255,0.45);
+      max-width: 500px;
+      line-height: 1.8;
+      opacity: 0;
+      transform: translateY(20px);
+    }
 
-        @media (max-width: 768px) {
-            .video-container {
-                grid-template-columns: 1fr;
-                height: 90vh;
-                overflow-y: auto;
-            }
-        }
+    .hero-actions {
+      display: flex; gap: 1rem; align-items: center; justify-content: center;
+      pointer-events: all;
+      opacity: 0;
+      transform: translateY(20px);
+    }
 
-        .video-player-side {
-            padding: 20px;
-            background: #000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      padding: 0.85rem 2.2rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 500;
+      transition: opacity 0.3s, transform 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,0.15);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .btn-primary:hover::after { opacity: 1; }
+    .btn-primary:hover { transform: scale(1.03); }
 
-        .video-player-side iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            border-radius: 8px;
-        }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 0.85rem 2.2rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+      font-weight: 400;
+      transition: border-color 0.3s, color 0.3s;
+    }
+    .btn-ghost:hover { border-color: var(--accent2); color: var(--fg); }
 
-        .video-playlist-side {
-            padding: 25px;
-            border-left: 1px solid var(--border-color);
-            overflow-y: auto;
-            background: var(--panel-bg);
-        }
+    .scroll-indicator {
+      position: absolute; bottom: 2.5rem; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      opacity: 0;
+    }
+    .scroll-indicator span {
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+    }
+    .scroll-indicator .line {
+      width: 1px; height: 50px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
+      animation: scrollLine 2s ease-in-out infinite;
+    }
+    @keyframes scrollLine {
+      0% { transform: scaleY(0); transform-origin: top; }
+      50% { transform: scaleY(1); transform-origin: top; }
+      51% { transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; }
+    }
 
-        .playlist-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-        }
+    /* ─── ABOUT SECTION ─────────────────────────────────────────── */
+    .about {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      align-items: center;
+    }
 
-        .playlist-item {
-            padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 14px;
-        }
+    .about-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+    }
 
-        .playlist-item:hover, .playlist-item.active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
+    .about-heading {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 500;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+    }
 
-        /* ALOQA BO'LIMI */
-        .contact {
-            padding: 100px 8%;
-            display: flex;
-            justify-content: center;
-            background: radial-gradient(circle at 50% 80%, rgba(59, 130, 246, 0.08), transparent 50%);
-        }
+    .about-heading .reveal-line {
+      display: block;
+      overflow: hidden;
+    }
+    .about-heading .reveal-line .inner {
+      display: block;
+      opacity: 0;
+      transform: translateY(100%);
+    }
 
-        .contact-card {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            padding: 50px;
-            border-radius: var(--radius);
-            width: 100%;
-            max-width: 600px;
-        }
+    .about-body {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.9;
+      opacity: 0;
+      font-weight: 300;
+    }
 
-        .contact-card h3 {
-            font-size: 28px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
+    .about-stats {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+    .stat-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
+      border-radius: 1rem;
+      padding: 1.8rem;
+      opacity: 0;
+      transform: translateY(30px);
+      pointer-events: all;
+      transition: border-color 0.4s, background 0.4s, transform 0.4s;
+      cursor: default;
+    }
+    .stat-card:hover {
+      border-color: rgba(108,99,255,0.4);
+      background: rgba(108,99,255,0.06);
+      transform: translateY(-4px) !important;
+    }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 14px;
-        }
+    .stat-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--fg), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
 
-        .form-control {
-            width: 100%;
-            padding: 14px 18px;
-            background-color: #0b0f19;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            color: white;
-            outline: none;
-            font-size: 15px;
-            transition: var(--transition);
-        }
+    .stat-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      font-weight: 300;
+    }
 
-        .form-control:focus {
-            border-color: var(--primary-color);
-        }
+    /* ─── FEATURES SECTION ──────────────────────────────────────── */
+    .features {
+      flex-direction: column;
+      gap: 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
 
-        /* ADMIN PANEL INTERFEYSI */
-        #admin-panel {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-color);
-            z-index: 1000;
-            padding: 40px 8%;
-            overflow-y: auto;
-        }
+    .features-header {
+      text-align: center;
+    }
 
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 40px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 20px;
-        }
+    .section-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 1.2rem;
+      opacity: 0;
+    }
 
-        .admin-sections {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-        }
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 4.5vw, 3.5rem);
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+    }
 
-        @media (max-width: 1024px) {
-            .admin-sections {
-                grid-template-columns: 1fr;
-            }
-        }
+    .section-title .reveal-line {
+      display: block;
+      overflow: hidden;
+    }
+    .section-title .reveal-line .inner {
+      display: block;
+      opacity: 0;
+      transform: translateY(100%);
+    }
 
-        .leads-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: var(--panel-bg);
-            border-radius: var(--radius);
-            overflow: hidden;
-            margin-top: 10px;
-        }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      width: 100%;
+    }
 
-        .leads-table th, .leads-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 14px;
-        }
+    .feature-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(24px);
+      border-radius: 1.25rem;
+      padding: 2.5rem 2rem;
+      opacity: 0;
+      transform: translateY(40px);
+      pointer-events: all;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.4s var(--ease), background 0.4s;
+    }
 
-        .leads-table th {
-            background-color: rgba(0, 0, 0, 0.2);
-            color: var(--text-muted);
-        }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle at center, rgba(108,99,255,0.08), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card:hover {
+      border-color: rgba(108,99,255,0.35);
+    }
 
-        /* MODALLAR */
-        .login-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 999;
-            opacity: 0;
-            pointer-events: none;
-            transition: var(--transition);
-        }
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(108,99,255,0.3), rgba(0,212,255,0.15));
+      border: 1px solid rgba(108,99,255,0.3);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+    }
 
-        .login-modal.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
+    .feature-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 500;
+      margin-bottom: 0.8rem;
+      letter-spacing: -0.01em;
+    }
 
-        footer {
-            text-align: center;
-            padding: 40px;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-    </style>
+    .feature-text {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.75;
+      font-weight: 300;
+    }
+
+    /* ─── CTA SECTION ───────────────────────────────────────────── */
+    .cta-section {
+      flex-direction: column;
+      text-align: center;
+      gap: 2.5rem;
+    }
+
+    .cta-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 5.5rem);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .cta-title .reveal-line {
+      display: block;
+      overflow: hidden;
+    }
+    .cta-title .reveal-line .inner {
+      display: block;
+      opacity: 0;
+      transform: translateY(100%);
+    }
+
+    .cta-sub {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.4);
+      max-width: 420px;
+      line-height: 1.8;
+      opacity: 0;
+      font-weight: 300;
+    }
+
+    .cta-actions {
+      display: flex; gap: 1rem; align-items: center; justify-content: center;
+      pointer-events: all;
+      opacity: 0;
+    }
+
+    /* ─── FOOTER ────────────────────────────────────────────────── */
+    footer {
+      position: relative; z-index: 10;
+      padding: 3rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: flex; align-items: center; justify-content: space-between;
+      pointer-events: all;
+    }
+
+    footer .foot-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      opacity: 0.5;
+    }
+
+    footer .foot-copy {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.25);
+    }
+
+    footer .foot-links {
+      display: flex; gap: 2rem;
+      list-style: none;
+    }
+    footer .foot-links li a {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    footer .foot-links li a:hover { color: var(--fg); }
+
+    /* ─── NOISE OVERLAY ─────────────────────────────────────────── */
+    .noise {
+      position: fixed; inset: 0; z-index: 200;
+      pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ─── CURSOR ────────────────────────────────────────────────── */
+    .cursor-dot, .cursor-ring {
+      position: fixed; pointer-events: none; z-index: 9998; border-radius: 50%;
+    }
+    .cursor-dot {
+      width: 5px; height: 5px;
+      background: var(--accent2);
+      top: -3px; left: -3px;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(0,212,255,0.4);
+      top: -18px; left: -18px;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+
+    @media (max-width: 768px) {
+      nav ul { display: none; }
+      .about { grid-template-columns: 1fr; gap: 3rem; }
+      .features-grid { grid-template-columns: 1fr; }
+      section { padding: 5rem 1.5rem; }
+      nav { padding: 1.5rem; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+      .cursor-dot, .cursor-ring { display: none; }
+    }
+  </style>
 </head>
 <body>
 
-    <!-- NAVIGATSIYA -->
-    <header>
-        <a href="#" class="logo">⚡ INSAN.DEV</a>
-        <nav>
-            <a href="#services">Xizmatlar</a>
-            <a href="#courses">Kurslar</a>
-            <a href="#contact">Yozilish</a>
-            <a href="#" onclick="toggleLoginModal()" style="color: var(--text-muted); font-size: 12px; margin-left: 40px;">🔑 Admin</a>
-        </nav>
-        <a href="#contact" class="btn-main">Loyiha boshlash</a>
-    </header>
+  <!-- Noise Film Grain -->
+  <div class="noise"></div>
 
-    <!-- HERO SECTION -->
-    <section class="hero">
-        <h1>Xizmatlar va Zamonaviy<br><span style="background: linear-gradient(135deg, #a78bfa, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">O'quv Kurslari</span></h1>
-        <p>Premium darajadagi xizmatlar hamda darslarni videopleyerda onlayn o'rganish imkoniyatiga ega bo'lgan kurslarimiz.</p>
-        <a href="#courses" class="btn-main" style="padding: 16px 36px; font-size: 16px;">Kurslarni boshlash 🎬</a>
-    </section>
+  <!-- Custom Cursor -->
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
 
-    <!-- 1. XIZMATLAR BO'LIMI -->
-    <section class="section-padding" id="services">
-        <h2 class="section-title">Biz ko'rsatadigan xizmatlar</h2>
-        <p class="section-subtitle">Biznesingiz rivoji uchun eng sara raqamli yechimlar</p>
-        <div class="grid-layout">
-            <div class="card" style="cursor: default;">
-                <div class="card-icon">💻</div>
-                <h3>Veb-sayt yaratish</h3>
-                <p>Biznesingiz imidjini oshiruvchi, tezkor, xavfsiz va barcha qurilmalarga moslashuvchan saytlar.</p>
-            </div>
-            <div class="card" style="cursor: default;">
-                <div class="card-icon">🎨</div>
-                <h3>UX/UI Dizayn</h3>
-                <p>Mijozlaringiz uchun qulay, intuitiv va yuqori vizual ko'rinishga ega zamonaviy interfeys dizayni.</p>
-            </div>
-            <div class="card" style="cursor: default;">
-                <div class="card-icon">🚀</div>
-                <h3>SEO Optimizatsiya</h3>
-                <p>Google va boshqa qidiruv tizimlarida eng yuqori o'rinlarni egallash orqali bepul mijozlar oqimi.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- 2. KURSLAR BO'LIMI -->
-    <section class="section-padding" id="courses" style="background-color: #090d16; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
-        <h2 class="section-title">Bizning o'quv kurslarimiz</h2>
-        <p class="section-subtitle">Videodarslarni tomosha qilish uchun istalgan kurs kartochkasini bosing! 🎬</p>
-        <div class="grid-layout">
-            
-            <div class="card" onclick="openCourseVideos('Savodxonlik kursi')">
-                <span class="badge">Kurs</span>
-                <div class="card-icon">📚</div>
-                <h3>Savodxonlik kursi</h3>
-                <p>Kompyuterda ishlash, Windows tizimi va internet xavfsizligini darslarini o'rganing.</p>
-                <div style="margin-top: 15px; color: var(--accent-color); font-size: 13px; font-weight: 600;">Darslarni ko'rish ➜</div>
-            </div>
-
-            <div class="card" onclick="openCourseVideos('MS Word')">
-                <span class="badge">Kurs</span>
-                <div class="card-icon">📝</div>
-                <h3>MS Word</h3>
-                <p>Hujjatlar tayyorlash, matnlarni tahrirlash va hisobotlar yozishni o'rganing.</p>
-                <div style="margin-top: 15px; color: var(--accent-color); font-size: 13px; font-weight: 600;">Darslarni ko'rish ➜</div>
-            </div>
-
-            <div class="card" onclick="openCourseVideos('MS Excel')">
-                <span class="badge">Kurs</span>
-                <div class="card-icon">📊</div>
-                <h3>MS Excel</h3>
-                <p>Formulalar, diagrammalar va moliyaviy jadvallar ustida ishlash darslari.</p>
-                <div style="margin-top: 15px; color: var(--accent-color); font-size: 13px; font-weight: 600;">Darslarni ko'rish ➜</div>
-            </div>
-
-            <div class="card" onclick="openCourseVideos('HTML & CSS')">
-                <span class="badge">Kurs</span>
-                <div class="card-icon">🌐</div>
-                <h3>HTML & CSS</h3>
-                <p>Veb-saytlarni noldan boshlab dasturlash va chiroyli dizayn berishni o'rganing.</p>
-                <div style="margin-top: 15px; color: var(--accent-color); font-size: 13px; font-weight: 600;">Darslarni ko'rish ➜</div>
-            </div>
-
-            <div class="card" onclick="openCourseVideos('Java')">
-                <span class="badge">Kurs</span>
-                <div class="card-icon">☕</div>
-                <h3>Java</h3>
-                <p>Kuchli backend, mobil dasturlar va ma'lumotlar bazasi darsliklari.</p>
-                <div style="margin-top: 15px; color: var(--accent-color); font-size: 13px; font-weight: 600;">Darslarni ko'rish ➜</div>
-            </div>
-
-            <div class="card" onclick="openCourseVideos('React')">
-                <span class="badge">Kurs</span>
-                <div class="card-icon">⚛️</div>
-                <h3>React</h3>
-                <p>Zamonaviy veb-ilova (SPA) va dinamik front-end interfeyslar yaratish darslari.</p>
-                <div style="margin-top: 15px; color: var(--accent-color); font-size: 13px; font-weight: 600;">Darslarni ko'rish ➜</div>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- O'QUVCHI UCHUN VIDEOLARNI KO'RISH MODAL OYNASI -->
-    <div class="video-modal" id="video-modal">
-        <div class="video-container">
-            <button onclick="closeVideoModal()" style="position: absolute; right: 15px; top: 15px; background: red; border: none; color: white; padding: 5px 10px; border-radius: 5px; cursor: pointer; z-index: 10;">Yopish &times;</button>
-            
-            <div class="video-player-side">
-                <iframe id="main-video-player" src="" allowfullscreen></iframe>
-                <h3 id="playing-video-title" style="margin-top: 15px; font-size: 18px;">Hozir ijro etilmoqda...</h3>
-            </div>
-
-            <div class="video-playlist-side">
-                <h4 id="course-playlist-title" class="playlist-title">Kurs darslari</h4>
-                <div id="playlist-items-container">
-                    <!-- Dinamik darsliklar ro'yxati -->
-                </div>
-            </div>
-        </div>
+  <!-- ── PRELOADER ──────────────────────────────────────────────── -->
+  <div id="preloader">
+    <div class="pre-logo">NEXUS</div>
+    <div class="pre-bar-wrap">
+      <div class="pre-bar" id="preBar"></div>
     </div>
+    <div class="pre-counter" id="preCounter">0%</div>
+  </div>
 
-    <!-- ALOQA VA RO'YXATDAN O'TISH FORMASI -->
-    <section class="contact" id="contact">
-        <div class="contact-card">
-            <h3>Ariza qoldirish</h3>
-            <p style="color: var(--text-muted); text-align: center; margin-bottom: 25px; font-size: 14px;">Barcha arizalar pochtangizga va admin panelingizga yuboriladi.</p>
-            
-            <form id="lead-form">
-                <div class="form-group">
-                    <label>F.I.SH (Ismingiz va familiyangiz)</label>
-                    <input type="text" id="lead-name" class="form-control" placeholder="Masalan: Behruz Aliyev" required>
-                </div>
-                <div class="form-group">
-                    <label>Telefon raqamingiz</label>
-                    <input type="tel" id="lead-phone" class="form-control" placeholder="+998 90 123 45 67" required>
-                </div>
-                <div class="form-group">
-                    <label>Sizga qaysi yo'nalish kerak?</label>
-                    <select id="lead-service" class="form-control" style="background-color: #0b0f19;">
-                        <optgroup label="Yo'nalish / Kurslar">
-                            <option value="Savodxonlik kursi">Savodxonlik kursi</option>
-                            <option value="MS Word kursi">MS Word</option>
-                            <option value="MS Excel kursi">MS Excel</option>
-                            <option value="HTML & CSS kursi">HTML & CSS</option>
-                            <option value="Java dasturlash kursi">Java</option>
-                            <option value="React kutubxonasi kursi">React</option>
-                        </optgroup>
-                        <optgroup label="Raqamli Xizmatlar">
-                            <option value="Veb-sayt yaratish xizmati">Veb-sayt yaratish</option>
-                            <option value="UX/UI Dizayn xizmati">UX/UI Dizayn</option>
-                            <option value="SEO Optimizatsiya xizmati">SEO Optimizatsiya</option>
-                        </optgroup>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Siz bilan bog'lanish uchun qo'shimcha izoh (ixtiyoriy)</label>
-                    <textarea id="lead-msg" class="form-control" rows="4" placeholder="Savollaringiz bo'lsa yozib qoldiring..."></textarea>
-                </div>
-                <button type="submit" class="btn-main" style="width: 100%;">Arizani yuborish 🚀</button>
-            </form>
-        </div>
+  <!-- ── WEBGL CANVAS ──────────────────────────────────────────── -->
+  <div id="canvas-container">
+    <canvas id="webgl"></canvas>
+  </div>
+
+  <!-- ── NAV ──────────────────────────────────────────────────── -->
+  <nav id="nav">
+    <div class="nav-logo">Nexus</div>
+    <ul>
+      <li><a href="#">Work</a></li>
+      <li><a href="#">Studio</a></li>
+      <li><a href="#">Process</a></li>
+      <li><a href="#">Lab</a></li>
+    </ul>
+    <button class="nav-cta">Get Started</button>
+  </nav>
+
+  <!-- ── SCROLL CONTENT ────────────────────────────────────────── -->
+  <div id="scroll-content">
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+      <p class="hero-eyebrow">Redefining Digital Boundaries</p>
+      <h1 class="hero-title">
+        <span class="word"><span class="char">B</span><span class="char">e</span><span class="char">y</span><span class="char">o</span><span class="char">n</span><span class="char">d</span></span>&nbsp;
+        <span class="word"><span class="char grad">V</span><span class="char grad">i</span><span class="char grad">s</span><span class="char grad">i</span><span class="char grad">o</span><span class="char grad">n</span></span>
+      </h1>
+      <p class="hero-sub">
+        We craft immersive digital experiences that transcend the ordinary — where technology meets art, and data breathes life.
+      </p>
+      <div class="hero-actions">
+        <button class="btn-primary">Explore Work</button>
+        <button class="btn-ghost">Our Process</button>
+      </div>
+      <div class="scroll-indicator">
+        <span>Scroll</span>
+        <div class="line"></div>
+      </div>
     </section>
 
-    <footer>
-        <p>© 2026 INSAN.DEV. Barcha huquqlar himoyalangan.</p>
-    </footer>
-
-    <!-- ADMIN LOG-IN OYNASI -->
-    <div class="login-modal" id="login-modal">
-        <div class="contact-card" style="max-width: 400px; position: relative;">
-            <button onclick="toggleLoginModal()" style="position: absolute; right: 20px; top: 20px; background: none; border: none; color: white; font-size: 24px; cursor: pointer;">&times;</button>
-            <h3 style="margin-bottom: 20px;">Admin tizimiga kirish</h3>
-            <form id="admin-login-form">
-                <div class="form-group">
-                    <label>Login</label>
-                    <input type="text" id="admin-user" class="form-control" required value="admin">
-                </div>
-                <div class="form-group">
-                    <label>Parol (Hozirgi: 12345)</label>
-                    <input type="password" id="admin-pass" class="form-control" required value="12345">
-                </div>
-                <button type="submit" class="btn-main" style="width: 100%;">Kirish 🗝️</button>
-            </form>
+    <!-- ABOUT -->
+    <section id="about">
+      <div class="about">
+        <div class="about-left">
+          <p class="about-label">About Nexus</p>
+          <h2 class="about-heading">
+            <span class="reveal-line"><span class="inner">Quantum-level precision.</span></span>
+            <span class="reveal-line"><span class="inner">Human-scale impact.</span></span>
+          </h2>
+          <p class="about-body">
+            We are a collective of engineers, designers, and dreamers pushing the limits of what is possible on the web. Every interaction is a statement. Every pixel, a decision. We build with intention — and the world notices.
+          </p>
         </div>
-    </div>
-
-    <!-- SHAXSIY ADMIN PANEL -->
-    <div id="admin-panel">
-        <div class="admin-header">
-            <h2>📊 Boshqaruv paneli (Admin)</h2>
-            <div>
-                <button class="btn-main" onclick="logoutAdmin()" style="background: #ef4444;">Chiqish 🚪</button>
-            </div>
+        <div class="about-stats">
+          <div class="stat-card">
+            <div class="stat-number">240+</div>
+            <div class="stat-label">Projects Launched</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">98%</div>
+            <div class="stat-label">Client Satisfaction</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">12×</div>
+            <div class="stat-label">Avg. ROI Increase</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">08</div>
+            <div class="stat-label">Years of Mastery</div>
+          </div>
         </div>
+      </div>
+    </section>
 
-        <div class="admin-sections">
-            <div class="contact-card" style="max-width: 100%; padding: 25px;">
-                <h3 style="text-align: left; margin-bottom: 20px;">Kelib tushgan arizalar</h3>
-                <table class="leads-table">
-                    <thead>
-                        <tr>
-                            <th>F.I.SH</th>
-                            <th>Telefon</th>
-                            <th>Yo'nalish</th>
-                            <th>Amal</th>
-                        </tr>
-                    </thead>
-                    <tbody id="leads-list">
-                        <!-- Dynamic Leads -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="contact-card" style="max-width: 100%; padding: 25px;">
-                <h3 style="text-align: left; margin-bottom: 15px;">Darslarni boshqarish 🎬</h3>
-                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
-                    Kurslarga yangi videolarni YouTube'dan "Embed" qilib qo'shing.
-                </p>
-                <form id="add-video-form">
-                    <div class="form-group">
-                        <label>Kursni tanlang</label>
-                        <select id="video-course-select" class="form-control" style="background-color: #0b0f19;">
-                            <option value="Savodxonlik kursi">Savodxonlik kursi</option>
-                            <option value="MS Word">MS Word</option>
-                            <option value="MS Excel">MS Excel</option>
-                            <option value="HTML & CSS">HTML & CSS</option>
-                            <option value="Java">Java</option>
-                            <option value="React">React</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Dars nomi</label>
-                        <input type="text" id="video-title-input" class="form-control" placeholder="Masalan: 1-Dars: Kirish" required>
-                    </div>
-                    <div class="form-group">
-                        <label>YouTube Embed Link</label>
-                        <input type="text" id="video-url-input" class="form-control" placeholder="Masalan: https://www.youtube.com/embed/SizningKodingiz" required>
-                    </div>
-                    <button type="submit" class="btn-main" style="width: 100%; margin-bottom: 20px;">Videoni kursga qo'shish ➕</button>
-                </form>
-
-                <h4 style="margin-bottom: 10px;">Barcha o'rnatilgan videolar:</h4>
-                <div style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
-                    <ul id="admin-videos-list" style="list-style: none;">
-                        <!-- JS Dynamic list -->
-                    </ul>
-                </div>
-            </div>
+    <!-- FEATURES -->
+    <section id="features">
+      <div class="features">
+        <div class="features-header">
+          <p class="section-label">Our Capabilities</p>
+          <h2 class="section-title">
+            <span class="reveal-line"><span class="inner">Everything you need.</span></span>
+            <span class="reveal-line"><span class="inner">Nothing you don't.</span></span>
+          </h2>
         </div>
-    </div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">✦</div>
+            <h3 class="feature-title">Shader Engineering</h3>
+            <p class="feature-text">Custom GLSL shaders that breathe organic life into every surface — fluid simulations, volumetric light, real-time noise fields.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⬡</div>
+            <h3 class="feature-title">Generative Systems</h3>
+            <p class="feature-text">Procedurally generated visual systems that respond, evolve, and surprise — no two interactions identical.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">◈</div>
+            <h3 class="feature-title">Motion Architecture</h3>
+            <p class="feature-text">Orchestrated scroll choreography, spring-physics micro-interactions, and cinematic transition design.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⟡</div>
+            <h3 class="feature-title">Spatial UI</h3>
+            <p class="feature-text">Three-dimensional interface paradigms that create depth, hierarchy, and delight at every layer of the experience.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">◎</div>
+            <h3 class="feature-title">AI-Driven Design</h3>
+            <p class="feature-text">Machine learning integrated at the design layer — personalized visual adaptation in real-time at runtime.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⊕</div>
+            <h3 class="feature-title">Performance Core</h3>
+            <p class="feature-text">Sub-50ms interactions, 60fps guaranteed, WASM compute pipelines where needed. Beauty never costs performance.</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <!-- JAVASCRIPT LOGIKA -->
-    <script>
-        const defaultLeads = [
-            { id: 1, name: "Asilbek To'rayev", phone: "+998 90 987 65 43", service: "HTML & CSS kursi", msg: "Kurs qachon boshlanadi?" }
-        ];
+    <!-- CTA -->
+    <section id="cta" class="cta-section">
+      <h2 class="cta-title">
+        <span class="reveal-line"><span class="inner">Start something</span></span>
+        <span class="reveal-line"><span class="inner"><span class="grad">extraordinary.</span></span></span>
+      </h2>
+      <p class="cta-sub">
+        Join the studios, brands, and visionaries who trust Nexus to shape the future of digital.
+      </p>
+      <div class="cta-actions">
+        <button class="btn-primary">Begin Your Journey</button>
+        <button class="btn-ghost">View Portfolio</button>
+      </div>
+    </section>
 
-        // 🎬 HAR BIR KURS UCHUN TAYYOR VIDEODARSLAR RO'YXATI
-        const defaultVideos = [
-            // Savodxonlik kursi
-            { id: 1, course: "Savodxonlik kursi", title: "1-Dars: Kompyuter savodxonligi kirish", url: "https://www.youtube.com/embed/g6Pez9p6Xo4" },
-            { id: 2, course: "Savodxonlik kursi", title: "2-Dars: Windows tizimi va Fayllar bilan ishlash", url: "https://www.youtube.com/embed/Xqg9gN3t8jE" },
-            
-            // MS Word
-            { id: 3, course: "MS Word", title: "1-Dars: Word dasturiga kirish va interfeys", url: "https://www.youtube.com/embed/5F4mEw6zM7k" },
-            { id: 4, course: "MS Word", title: "2-Dars: Matnlarga chiroyli stil berish", url: "https://www.youtube.com/embed/3LqFvS3k6lA" },
+  </div><!-- /scroll-content -->
 
-            // MS Excel
-            { id: 5, course: "MS Excel", title: "1-Dars: Excel dasturida ishlashni o'rganamiz", url: "https://www.youtube.com/embed/p1u8IuR62Hw" },
-            { id: 6, course: "MS Excel", title: "2-Dars: Excelda formulalar yaratish va hisoblash", url: "https://www.youtube.com/embed/m-gZ9-1WpxI" },
+  <!-- FOOTER -->
+  <footer>
+    <div class="foot-logo">Nexus</div>
+    <span class="foot-copy">© 2025 Nexus Studio. All rights reserved.</span>
+    <ul class="foot-links">
+      <li><a href="#">Privacy</a></li>
+      <li><a href="#">Terms</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+  </footer>
 
-            // HTML & CSS
-            { id: 7, course: "HTML & CSS", title: "1-Dars: HTML nima? Kirish va boshlang'ich teglar", url: "https://www.youtube.com/embed/mU6an7qMCsc" },
-            { id: 8, course: "HTML & CSS", title: "2-Dars: CSS orqali veb-saytga dizayn berish", url: "https://www.youtube.com/embed/1Rs2ND1ryYc" },
+  <!-- ── SCRIPTS ────────────────────────────────────────────────── -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
-            // Java
-            { id: 9, course: "Java", title: "1-Dars: Java dasturlash tili va JDK o'rnatish", url: "https://www.youtube.com/embed/Ke90Tje7VS0" },
-            { id: 10, course: "Java", title: "2-Dars: Java-da Ma'lumot turlari va o'zgaruvchilar", url: "https://www.youtube.com/embed/6_54vN_qj3k" },
+  <script>
+  /* ================================================================
+     NEXUS — Master WebGL + GSAP Experience
+  ================================================================ */
+  'use strict';
 
-            // React
-            { id: 11, course: "React", title: "1-Dars: React nima va nima uchun kerak?", url: "https://www.youtube.com/embed/SqcY0GlETPk" },
-            { id: 12, course: "React", title: "2-Dars: React-da Component va Props tushunchalari", url: "https://www.youtube.com/embed/Ke90Tje7VS0" }
-        ];
+  gsap.registerPlugin(ScrollTrigger);
 
-        function getLeads() {
-            if(!localStorage.getItem('agency_leads')) {
-                localStorage.setItem('agency_leads', JSON.stringify(defaultLeads));
-            }
-            return JSON.parse(localStorage.getItem('agency_leads'));
+  /* ── 1. SHADER SOURCE ─────────────────────────────────────────── */
+
+  const VERT_SHADER = /* glsl */`
+    // Simplex 3D noise implementation
+    vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+    vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+    vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+    vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+
+    float snoise(vec3 v) {
+      const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+      const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+      vec3 i  = floor(v + dot(v, C.yyy));
+      vec3 x0 = v - i + dot(i, C.xxx);
+      vec3 g  = step(x0.yzx, x0.xyz);
+      vec3 l  = 1.0 - g;
+      vec3 i1 = min(g.xyz, l.zxy);
+      vec3 i2 = max(g.xyz, l.zxy);
+      vec3 x1 = x0 - i1 + C.xxx;
+      vec3 x2 = x0 - i2 + C.yyy;
+      vec3 x3 = x0 - D.yyy;
+      i = mod289(i);
+      vec4 p = permute(permute(permute(
+        i.z + vec4(0.0, i1.z, i2.z, 1.0))
+        + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+        + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+      float n_ = 0.142857142857;
+      vec3 ns = n_ * D.wyz - D.xzx;
+      vec4 j  = p - 49.0 * floor(p * ns.z * ns.z);
+      vec4 x_ = floor(j * ns.z);
+      vec4 y_ = floor(j - 7.0 * x_);
+      vec4 x  = x_ *ns.x + ns.yyyy;
+      vec4 y  = y_ *ns.x + ns.yyyy;
+      vec4 h  = 1.0 - abs(x) - abs(y);
+      vec4 b0 = vec4(x.xy, y.xy);
+      vec4 b1 = vec4(x.zw, y.zw);
+      vec4 s0 = floor(b0)*2.0 + 1.0;
+      vec4 s1 = floor(b1)*2.0 + 1.0;
+      vec4 sh = -step(h, vec4(0.0));
+      vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
+      vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
+      vec3 p0 = vec3(a0.xy, h.x);
+      vec3 p1 = vec3(a0.zw, h.y);
+      vec3 p2 = vec3(a1.xy, h.z);
+      vec3 p3 = vec3(a1.zw, h.w);
+      vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+      p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+      vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+      m = m * m;
+      return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+    }
+
+    uniform float u_time;
+    uniform float u_scroll;
+    uniform vec2  u_mouse;
+    uniform float u_morph;
+
+    varying vec2  vUv;
+    varying vec3  vNormal;
+    varying vec3  vPosition;
+    varying float vNoise;
+    varying float vDisplacement;
+
+    void main() {
+      vUv = uv;
+      vNormal = normal;
+
+      // Mouse influence
+      float mX = u_mouse.x * 0.6;
+      float mY = u_mouse.y * 0.6;
+
+      // Multi-octave noise for organic surface
+      float t = u_time * 0.28;
+      vec3 p = position;
+
+      float noise1 = snoise(vec3(p.x * 1.2 + t, p.y * 1.2 + t * 0.6, p.z * 1.2 + mX));
+      float noise2 = snoise(vec3(p.x * 2.4 - t * 0.4 + mY, p.y * 2.4 + t, p.z * 2.4)) * 0.5;
+      float noise3 = snoise(vec3(p.x * 4.8 + t * 0.2, p.y * 4.8 - t * 0.3, p.z * 4.8 + mX * 0.5)) * 0.25;
+
+      // Scroll-driven secondary morph
+      float scrollNoise = snoise(vec3(p.x * 0.9, p.y * 0.9 + u_scroll * 0.8, p.z * 0.9 + u_scroll * 0.4)) * u_scroll * 0.6;
+
+      float totalNoise = (noise1 + noise2 + noise3 + scrollNoise);
+      vNoise = totalNoise;
+
+      float displacement = totalNoise * (0.28 + u_morph * 0.18);
+      vDisplacement = displacement;
+
+      vec3 newPos = position + normal * displacement;
+      vPosition = newPos;
+
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
+    }
+  `;
+
+  const FRAG_SHADER = /* glsl */`
+    // Simplex 2D helper
+    vec3 mod289v(vec3 x) { return x - floor(x * (1.0/289.0)) * 289.0; }
+    vec2 mod289v(vec2 x) { return x - floor(x * (1.0/289.0)) * 289.0; }
+    vec3 permutev(vec3 x) { return mod289v(((x*34.0)+1.0)*x); }
+
+    float snoise2(vec2 v) {
+      const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+      vec2 i = floor(v + dot(v, C.yy));
+      vec2 x0 = v - i + dot(i, C.xx);
+      vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+      vec4 x12 = x0.xyxy + C.xxzz;
+      x12.xy -= i1;
+      i = mod289v(i);
+      vec3 p = permutev(permutev(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+      vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+      m = m*m; m = m*m;
+      vec3 x = 2.0 * fract(p * C.www) - 1.0;
+      vec3 h = abs(x) - 0.5;
+      vec3 ox = floor(x + 0.5);
+      vec3 a0 = x - ox;
+      m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+      vec3 g;
+      g.x  = a0.x * x0.x   + h.x * x0.y;
+      g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+      return 130.0 * dot(m, g);
+    }
+
+    uniform float u_time;
+    uniform float u_scroll;
+    uniform vec2  u_mouse;
+    uniform vec2  u_resolution;
+    uniform float u_morph;
+
+    varying vec2  vUv;
+    varying vec3  vNormal;
+    varying vec3  vPosition;
+    varying float vNoise;
+    varying float vDisplacement;
+
+    // Color palette function
+    vec3 palette(float t, vec3 a, vec3 b, vec3 c, vec3 d) {
+      return a + b * cos(6.28318 * (c * t + d));
+    }
+
+    void main() {
+      float time = u_time * 0.35;
+
+      // === BASE COLOR GRADIENT ===
+      // Primary palette: deep indigo → electric cyan → violet
+      vec3 palA = vec3(0.05, 0.02, 0.18);
+      vec3 palB = vec3(0.45, 0.38, 0.55);
+      vec3 palC = vec3(0.85, 0.70, 0.80);
+      vec3 palD = vec3(0.18, 0.42, 0.68);
+
+      float colorT = vNoise * 0.5 + 0.5;
+      colorT += snoise2(vUv * 3.0 + time * 0.2) * 0.2;
+      colorT += u_scroll * 0.3;
+      colorT = fract(colorT * 0.8 + time * 0.12);
+
+      vec3 baseColor = palette(colorT, palA, palB, palC, palD);
+
+      // === SECONDARY LAYER: additive glow bands ===
+      float band1 = snoise2(vUv * 4.0 + vec2(time * 0.3, -time * 0.2));
+      float band2 = snoise2(vUv * 7.0 - vec2(time * 0.15, time * 0.4));
+      float glowBand = smoothstep(0.3, 0.7, band1 * 0.6 + band2 * 0.4);
+
+      vec3 glowColor1 = vec3(0.42, 0.24, 0.98); // violet
+      vec3 glowColor2 = vec3(0.0,  0.83, 1.0);  // cyan
+      vec3 glowMix = mix(glowColor1, glowColor2, glowBand + u_scroll * 0.5);
+
+      baseColor = mix(baseColor, glowMix, 0.35 + glowBand * 0.25);
+
+      // === CHROMATIC ABERRATION (UV-space) ===
+      float aberrStrength = 0.012 + abs(vDisplacement) * 0.03;
+      vec2 uvR = vUv + vec2( aberrStrength, 0.0);
+      vec2 uvB = vUv + vec2(-aberrStrength, 0.0);
+      float rChannel = snoise2(uvR * 5.0 + time * 0.25) * 0.5 + 0.5;
+      float bChannel = snoise2(uvB * 5.0 - time * 0.2) * 0.5 + 0.5;
+      baseColor.r = mix(baseColor.r, rChannel, 0.18);
+      baseColor.b = mix(baseColor.b, bChannel, 0.22);
+
+      // === FRESNEL-LIKE EDGE GLOW ===
+      vec3 viewDir = normalize(vec3(u_mouse * 0.5, 1.0));
+      float fresnel = pow(1.0 - abs(dot(normalize(vNormal), viewDir)), 2.8);
+      vec3 edgeColor = mix(vec3(0.1, 0.6, 1.0), vec3(0.7, 0.2, 1.0), u_scroll);
+      baseColor += edgeColor * fresnel * 0.55;
+
+      // === SPECULAR HIGHLIGHT ===
+      vec3 lightDir = normalize(vec3(u_mouse.x * 2.0, u_mouse.y * 2.0 + 1.0, 3.0));
+      float spec = pow(max(dot(normalize(vNormal), lightDir), 0.0), 24.0);
+      baseColor += vec3(0.9, 0.95, 1.0) * spec * 0.6;
+
+      // === VIGNETTE (subtle) ===
+      vec2 uv = vUv - 0.5;
+      float vig = 1.0 - dot(uv * 1.4, uv * 1.4);
+      vig = smoothstep(0.0, 0.7, vig);
+      baseColor *= 0.7 + vig * 0.3;
+
+      // === WIREFRAME-LIKE RIM ===
+      float rimWidth = 0.04;
+      float rim = 1.0;
+      if (vUv.x < rimWidth || vUv.x > 1.0 - rimWidth ||
+          vUv.y < rimWidth || vUv.y > 1.0 - rimWidth) {
+        rim = 1.15;
+      }
+      baseColor *= rim;
+
+      // Tone mapping: subtle HDR-like exposure
+      baseColor = 1.0 - exp(-baseColor * 1.6);
+      baseColor = pow(baseColor, vec3(0.88)); // gamma
+
+      gl_FragColor = vec4(baseColor, 1.0);
+    }
+  `;
+
+  /* ── 2. THREE.JS SETUP ────────────────────────────────────────── */
+
+  const canvas = document.getElementById('webgl');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x010108, 1);
+
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.position.set(0, 0, 4.5);
+
+  // Uniforms
+  const uniforms = {
+    u_time:       { value: 0 },
+    u_scroll:     { value: 0 },
+    u_mouse:      { value: new THREE.Vector2(0, 0) },
+    u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+    u_morph:      { value: 0 },
+  };
+
+  // High-detail icosahedron for organic surface
+  const geo = new THREE.IcosahedronGeometry(1.65, 64);
+  const mat = new THREE.ShaderMaterial({
+    vertexShader:   VERT_SHADER,
+    fragmentShader: FRAG_SHADER,
+    uniforms,
+    side: THREE.FrontSide,
+    wireframe: false,
+  });
+
+  const mesh = new THREE.Mesh(geo, mat);
+  scene.add(mesh);
+
+  // Background particle field
+  const partCount = 1800;
+  const partPositions = new Float32Array(partCount * 3);
+  for (let i = 0; i < partCount; i++) {
+    partPositions[i * 3]     = (Math.random() - 0.5) * 22;
+    partPositions[i * 3 + 1] = (Math.random() - 0.5) * 22;
+    partPositions[i * 3 + 2] = (Math.random() - 0.5) * 22;
+  }
+  const partGeo = new THREE.BufferGeometry();
+  partGeo.setAttribute('position', new THREE.BufferAttribute(partPositions, 3));
+
+  const partMat = new THREE.PointsMaterial({
+    color: 0x5555ff,
+    size: 0.025,
+    transparent: true,
+    opacity: 0.5,
+    sizeAttenuation: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const particles = new THREE.Points(partGeo, partMat);
+  scene.add(particles);
+
+  /* ── 3. MOUSE / INERTIA ───────────────────────────────────────── */
+
+  const mouse       = { x: 0, y: 0 };       // raw normalized
+  const mouseLerped = { x: 0, y: 0 };        // inertia-smoothed
+  const MOUSE_LERP  = 0.055;
+
+  window.addEventListener('mousemove', (e) => {
+    mouse.x = (e.clientX / window.innerWidth)  * 2 - 1;
+    mouse.y = (e.clientY / window.innerHeight) * 2 - 1;
+  });
+
+  /* ── 4. SCROLL STATE ──────────────────────────────────────────── */
+
+  let scrollProgress = 0;
+  let scrollTarget   = 0;
+  const SCROLL_LERP  = 0.08;
+
+  window.addEventListener('scroll', () => {
+    const maxScroll = document.body.scrollHeight - window.innerHeight;
+    scrollTarget = window.scrollY / maxScroll;
+  }, { passive: true });
+
+  /* ── 5. RESIZE ─────────────────────────────────────────────────── */
+
+  window.addEventListener('resize', () => {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    uniforms.u_resolution.value.set(w, h);
+  });
+
+  /* ── 6. PRELOADER ─────────────────────────────────────────────── */
+
+  let appReady = false;
+  const preBar     = document.getElementById('preBar');
+  const preCounter = document.getElementById('preCounter');
+  const preloader  = document.getElementById('preloader');
+
+  function runPreloader() {
+    let pct = 0;
+    const tick = setInterval(() => {
+      pct += Math.random() * 4.5 + 1.5;
+      if (pct >= 100) { pct = 100; clearInterval(tick); onPreloadComplete(); }
+      const rounded = Math.floor(pct);
+      preBar.style.width = pct + '%';
+      preCounter.textContent = rounded + '%';
+    }, 45);
+  }
+
+  function onPreloadComplete() {
+    setTimeout(() => {
+      gsap.to(preloader, {
+        opacity: 0,
+        duration: 1.2,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          preloader.style.display = 'none';
+          appReady = true;
+          launchIntro();
         }
+      });
+    }, 400);
+  }
 
-        function setLeads(leads) {
-            localStorage.setItem('agency_leads', JSON.stringify(leads));
-        }
+  /* ── 7. INTRO ANIMATION ───────────────────────────────────────── */
 
-        // AGAR BROWSER XOTIRASIDA VIDEOLAR YO'Q BO'LSA YOKI KAM BO'LSA - STANDART VIDEOLARNI QO'SHADI
-        function getVideos() {
-            const stored = localStorage.getItem('agency_videos');
-            if(!stored || JSON.parse(stored).length < 8) { 
-                localStorage.setItem('agency_videos', JSON.stringify(defaultVideos));
-            }
-            return JSON.parse(localStorage.getItem('agency_videos'));
-        }
+  function launchIntro() {
+    const tl = gsap.timeline();
 
-        function setVideos(videos) {
-            localStorage.setItem('agency_videos', JSON.stringify(videos));
-        }
+    // Nav
+    tl.to('#nav', { opacity: 1, duration: 1.2, ease: 'power2.out' }, 0);
 
-        // ARIZANI SAQLASH VA POCHTAGA YUBORISH
-        document.getElementById('lead-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('lead-name').value;
-            const phone = document.getElementById('lead-phone').value;
-            const service = document.getElementById('lead-service').value;
-            const msg = document.getElementById('lead-msg').value;
+    // Hero eyebrow
+    tl.to('.hero-eyebrow', {
+      opacity: 1, y: 0, duration: 0.9, ease: 'power3.out'
+    }, 0.3);
 
-            fetch("https://formsubmit.co/ajax/suhrobbekqayumov@gmail.com", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json"
-                },
-                body: JSON.stringify({
-                    "Ism": name,
-                    "Telefon raqami": phone,
-                    "Tanlangan Kurs / Xizmat": service,
-                    "Xabar / Izoh": msg
-                })
-            })
-            .then(res => res.json())
-            .then(data => console.log("Pochtaga yuborildi!"))
-            .catch(err => console.error(err));
+    // Hero chars stagger
+    tl.to('.hero-title .char', {
+      opacity: 1,
+      y: 0,
+      stagger: 0.045,
+      duration: 0.85,
+      ease: 'power4.out',
+    }, 0.5);
 
-            const leads = getLeads();
-            const newLead = { id: Date.now(), name, phone, service, msg };
-            leads.push(newLead);
-            setLeads(leads);
+    // Hero sub + actions
+    tl.to('.hero-sub', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0.95);
+    tl.to('.hero-actions', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 1.1);
+    tl.to('.scroll-indicator', { opacity: 1, duration: 0.8 }, 1.4);
 
-            alert("Sizning arizangiz muvaffaqiyatli qabul qilindi va pochtangizga yuborildi! 🚀");
-            this.reset();
-            renderLeads();
+    // Mesh intro — scale from 0
+    gsap.from(mesh.scale, { x: 0, y: 0, z: 0, duration: 2.5, ease: 'elastic.out(1, 0.6)' });
+    gsap.from(mesh.rotation, { y: Math.PI * 2, duration: 2.8, ease: 'power4.out' });
+
+    // Uniforms morph in
+    gsap.to(uniforms.u_morph, { value: 1, duration: 2.5, ease: 'power2.inOut' });
+  }
+
+  /* ── 8. SCROLL TRIGGERS ───────────────────────────────────────── */
+
+  function setupScrollAnimations() {
+    // About section
+    ScrollTrigger.create({
+      trigger: '#about',
+      start: 'top 75%',
+      once: true,
+      onEnter: () => {
+        gsap.to('.about-label', { opacity: 1, duration: 0.7, ease: 'power2.out' });
+
+        gsap.to('.about-heading .inner', {
+          opacity: 1, y: 0, stagger: 0.18, duration: 1, ease: 'power4.out', delay: 0.1
         });
 
-        // VIDEOLARNI KO'RISH MODALINI OCHISH
-        function openCourseVideos(courseName) {
-            const videos = getVideos().filter(v => v.course === courseName);
-            const modal = document.getElementById('video-modal');
-            const playlistContainer = document.getElementById('playlist-items-container');
-            const player = document.getElementById('main-video-player');
-            const playTitle = document.getElementById('playing-video-title');
+        gsap.to('.about-body', { opacity: 1, duration: 1, ease: 'power2.out', delay: 0.4 });
 
-            document.getElementById('course-playlist-title').innerText = `${courseName} darslari`;
-            playlistContainer.innerHTML = '';
+        gsap.to('.stat-card', {
+          opacity: 1, y: 0, stagger: 0.12, duration: 0.9, ease: 'power4.out', delay: 0.35
+        });
+      }
+    });
 
-            if (videos.length === 0) {
-                playlistContainer.innerHTML = `<p style="color: var(--text-muted); font-size: 14px;">Hozircha ushbu kurs uchun video yuklanmagan. Admin tez orada darslarni joylaydi.</p>`;
-                player.src = '';
-                playTitle.innerText = "Tez orada darslar yuklanadi...";
-            } else {
-                player.src = videos[0].url;
-                playTitle.innerText = videos[0].title;
+    // Features section
+    ScrollTrigger.create({
+      trigger: '#features',
+      start: 'top 75%',
+      once: true,
+      onEnter: () => {
+        gsap.to('#features .section-label', { opacity: 1, duration: 0.7 });
 
-                videos.forEach((video, index) => {
-                    const item = document.createElement('div');
-                    item.className = `playlist-item ${index === 0 ? 'active' : ''}`;
-                    item.innerText = video.title;
-                    item.onclick = function() {
-                        document.querySelectorAll('.playlist-item').forEach(el => el.classList.remove('active'));
-                        item.classList.add('active');
-                        player.src = video.url;
-                        playTitle.innerText = video.title;
-                    };
-                    playlistContainer.appendChild(item);
-                });
-            }
-            modal.classList.add('active');
-        }
-
-        function closeVideoModal() {
-            document.getElementById('video-modal').classList.remove('active');
-            document.getElementById('main-video-player').src = ''; 
-        }
-
-        // ADMIN LOGIN
-        function toggleLoginModal() {
-            document.getElementById('login-modal').classList.toggle('active');
-        }
-
-        document.getElementById('admin-login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const user = document.getElementById('admin-user').value;
-            const pass = document.getElementById('admin-pass').value;
-
-            if(user === 'admin' && pass === '12345') {
-                sessionStorage.setItem('isAdminLoggedIn', 'true');
-                toggleLoginModal();
-                showAdminPanel();
-            } else {
-                alert("Xato login yoki parol!");
-            }
+        gsap.to('#features .section-title .inner', {
+          opacity: 1, y: 0, stagger: 0.15, duration: 0.9, ease: 'power4.out', delay: 0.1
         });
 
-        function showAdminPanel() {
-            document.getElementById('admin-panel').style.display = 'block';
-            renderLeads();
-            renderAdminVideos();
-        }
+        gsap.to('.feature-card', {
+          opacity: 1, y: 0, stagger: 0.1, duration: 0.85, ease: 'power4.out', delay: 0.3
+        });
+      }
+    });
 
-        function logoutAdmin() {
-            sessionStorage.removeItem('isAdminLoggedIn');
-            document.getElementById('admin-panel').style.display = 'none';
-        }
+    // CTA section
+    ScrollTrigger.create({
+      trigger: '#cta',
+      start: 'top 75%',
+      once: true,
+      onEnter: () => {
+        gsap.to('#cta .reveal-line .inner', {
+          opacity: 1, y: 0, stagger: 0.2, duration: 1, ease: 'power4.out'
+        });
+        gsap.to('.cta-sub',     { opacity: 1, duration: 0.8, ease: 'power2.out', delay: 0.4 });
+        gsap.to('.cta-actions', { opacity: 1, duration: 0.8, ease: 'power2.out', delay: 0.6 });
+      }
+    });
 
-        // ARIZALARNI CHIQARISH
-        function renderLeads() {
-            const leads = getLeads();
-            const tbody = document.getElementById('leads-list');
-            tbody.innerHTML = '';
+    // ── Camera scroll path ──
+    ScrollTrigger.create({
+      trigger: '#scroll-content',
+      start: 'top top',
+      end:   'bottom bottom',
+      scrub: 2.5,
+      onUpdate: (self) => {
+        const p = self.progress;
 
-            leads.forEach(lead => {
-                const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td><strong>${lead.name}</strong></td>
-                    <td><a href="tel:${lead.phone}" style="color: var(--accent-color); text-decoration: none;">${lead.phone}</a></td>
-                    <td><span style="background-color: var(--primary-hover); padding: 4px 10px; border-radius: 8px; font-size: 11px;">${lead.service}</span></td>
-                    <td>
-                        <button onclick="deleteLead(${lead.id})" style="background-color: #ef4444; border: none; padding: 4px 8px; color: white; border-radius: 6px; cursor: pointer; font-size: 11px;">O'chirish</button>
-                    </td>
-                `;
-            });
-        }
-
-        function deleteLead(id) {
-            if(confirm("Ushbu arizani o'chirmoqchimisiz?")) {
-                let leads = getLeads();
-                leads = leads.filter(l => l.id !== id);
-                setLeads(leads);
-                renderLeads();
-            }
-        }
-
-        // VIDEOLARNI ADMIN PANELDAN BOSHQARISH
-        document.getElementById('add-video-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const course = document.getElementById('video-course-select').value;
-            const title = document.getElementById('video-title-input').value;
-            let url = document.getElementById('video-url-input').value;
-
-            if (url.includes("watch?v=")) {
-                url = url.replace("watch?v=", "embed/");
-            }
-
-            const videos = getVideos();
-            const newVideo = { id: Date.now(), course, title, url };
-            videos.push(newVideo);
-            setVideos(videos);
-
-            alert("Video darslik muvaffaqiyatli qo'shildi! 🎬");
-            this.reset();
-            renderAdminVideos();
+        // Camera tunnels through / orbits around the mesh
+        gsap.to(camera.position, {
+          x: Math.sin(p * Math.PI * 2) * 2.5,
+          y: Math.cos(p * Math.PI)     * 1.5,
+          z: 4.5 - p * 3.0 + Math.sin(p * Math.PI * 3) * 0.8,
+          duration: 0.5, ease: 'none', overwrite: true
         });
 
-        function renderAdminVideos() {
-            const videos = getVideos();
-            const list = document.getElementById('admin-videos-list');
-            list.innerHTML = '';
-
-            videos.forEach(video => {
-                const li = document.createElement('li');
-                li.style.display = 'flex';
-                li.style.justifyContent = 'space-between';
-                li.style.padding = '8px 0';
-                li.style.borderBottom = '1px solid var(--border-color)';
-                li.style.fontSize = '13px';
-                li.innerHTML = `
-                    <span>[${video.course}] - <strong>${video.title}</strong></span>
-                    <button onclick="deleteVideo(${video.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; font-weight: 700;">&times;</button>
-                `;
-                list.appendChild(li);
-            });
-        }
-
-        function deleteVideo(id) {
-            if(confirm("Ushbu darslikni o'chirmoqchimisiz?")) {
-                let videos = getVideos();
-                videos = videos.filter(v => v.id !== id);
-                setVideos(videos);
-                renderAdminVideos();
-            }
-        }
-
-        window.addEventListener('load', () => {
-            if(sessionStorage.getItem('isAdminLoggedIn') === 'true') {
-                showAdminPanel();
-            }
+        // Mesh rotation driven by scroll
+        gsap.to(mesh.rotation, {
+          x: p * Math.PI * 1.2,
+          y: p * Math.PI * 2.5,
+          duration: 0.5, ease: 'none', overwrite: true
         });
-    </script>
+
+        // Particle rotation
+        gsap.to(particles.rotation, {
+          x: p * Math.PI * 0.5,
+          y: p * Math.PI * 1.5,
+          duration: 0.8, ease: 'none', overwrite: true
+        });
+
+        // Color morph via uniform
+        uniforms.u_scroll.value = p;
+      }
+    });
+  }
+
+  /* ── 9. MAGNETIC CARDS ────────────────────────────────────────── */
+
+  function setupMagneticCards() {
+    document.querySelectorAll('.feature-card, .stat-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const r = card.getBoundingClientRect();
+        const cx = r.left + r.width  / 2;
+        const cy = r.top  + r.height / 2;
+        const dx = (e.clientX - cx) / (r.width  / 2);
+        const dy = (e.clientY - cy) / (r.height / 2);
+        gsap.to(card, {
+          rotateX: -dy * 8,
+          rotateY:  dx * 8,
+          transformPerspective: 600,
+          ease: 'power2.out',
+          duration: 0.4,
+        });
+      });
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, { rotateX: 0, rotateY: 0, duration: 0.6, ease: 'elastic.out(1, 0.5)' });
+      });
+    });
+  }
+
+  /* ── 10. CUSTOM CURSOR ────────────────────────────────────────── */
+
+  function setupCursor() {
+    const dot  = document.getElementById('cursorDot');
+    const ring = document.getElementById('cursorRing');
+    let cx = 0, cy = 0, rx = 0, ry = 0;
+
+    window.addEventListener('mousemove', (e) => {
+      cx = e.clientX; cy = e.clientY;
+    });
+
+    function animCursor() {
+      rx += (cx - rx) * 0.12;
+      ry += (cy - ry) * 0.12;
+      dot.style.transform  = `translate(${cx}px,${cy}px)`;
+      ring.style.transform = `translate(${rx}px,${ry}px)`;
+      requestAnimationFrame(animCursor);
+    }
+    animCursor();
+
+    document.querySelectorAll('button, a, .feature-card, .stat-card').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        gsap.to(ring, { scale: 1.8, opacity: 0.6, duration: 0.3 });
+      });
+      el.addEventListener('mouseleave', () => {
+        gsap.to(ring, { scale: 1, opacity: 1, duration: 0.3 });
+      });
+    });
+  }
+
+  /* ── 11. RENDER LOOP ──────────────────────────────────────────── */
+
+  const clock = new THREE.Clock();
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    const elapsed = clock.getElapsedTime();
+    uniforms.u_time.value = elapsed;
+
+    // Lerp mouse to uniform
+    mouseLerped.x += (mouse.x - mouseLerped.x) * MOUSE_LERP;
+    mouseLerped.y += (mouse.y - mouseLerped.y) * MOUSE_LERP;
+    uniforms.u_mouse.value.set(mouseLerped.x, -mouseLerped.y);
+
+    // Lerp scroll progress
+    scrollProgress += (scrollTarget - scrollProgress) * SCROLL_LERP;
+    uniforms.u_scroll.value = scrollProgress;
+
+    // Idle mesh rotation (subtle breathing)
+    if (!ScrollTrigger.isScrolling()) {
+      mesh.rotation.y += 0.0018 + mouseLerped.x * 0.001;
+      mesh.rotation.x += 0.0009 - mouseLerped.y * 0.0008;
+    }
+
+    // Particle slow drift
+    particles.rotation.y += 0.00025;
+    particles.rotation.x += 0.00012;
+
+    // Camera look at origin
+    camera.lookAt(0, 0, 0);
+
+    renderer.render(scene, camera);
+  }
+
+  /* ── 12. BOOT ─────────────────────────────────────────────────── */
+
+  runPreloader();
+  animate();
+
+  // Setup scroll and interactions after a brief tick
+  // (DOM is ready, but we still defer to next frame for perf)
+  requestAnimationFrame(() => {
+    setupScrollAnimations();
+    setupMagneticCards();
+    if (window.innerWidth > 768) setupCursor();
+  });
+
+  </script>
 </body>
 </html>
