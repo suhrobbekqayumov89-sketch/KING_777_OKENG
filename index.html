@@ -1,1320 +1,1391 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uz">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NEXUS — Immersive 3D Experience</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EduNexus — O'zbekistondagi #1 Online Ta'lim</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0a0a12;
+  --ink2:#111122;
+  --ink3:#18182e;
+  --fg:#f4f2ff;
+  --muted:rgba(244,242,255,.45);
+  --v:#7c6ff7;   /* violet */
+  --vl:#a99fff;
+  --c:#00d4ff;   /* cyan */
+  --g:#22e87a;   /* green */
+  --o:#ff8c42;   /* orange */
+  --p:#ff4dab;   /* pink */
+  --y:#ffe14d;   /* yellow */
+  --r:#ff4f4f;   /* red */
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+html{scroll-behavior:auto}
+body{background:var(--ink);color:var(--fg);font-family:'Inter',sans-serif;overflow-x:hidden;line-height:1}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:var(--ink)}
+::-webkit-scrollbar-thumb{background:var(--v);border-radius:2px}
 
-    :root {
-      --accent: #6c63ff;
-      --accent2: #00d4ff;
-      --bg: #010108;
-      --fg: #f0eeff;
-      --glass-bg: rgba(255,255,255,0.04);
-      --glass-border: rgba(255,255,255,0.08);
-      --ease: cubic-bezier(0.16, 1, 0.3, 1);
-    }
+/* ── CANVAS ──────────────────────────────────── */
+#canvas-container{position:fixed;inset:0;z-index:0;pointer-events:none}
+#webgl{width:100%;height:100%;display:block}
 
-    html { scroll-behavior: auto; }
+/* ── NOISE ───────────────────────────────────── */
+.noise{position:fixed;inset:0;z-index:201;pointer-events:none;opacity:.022;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 
-    body {
-      background: var(--bg);
-      color: var(--fg);
-      font-family: 'Inter', sans-serif;
-      overflow-x: hidden;
-      overflow-y: auto;
-    }
+/* ── CURSOR ──────────────────────────────────── */
+#cDot,#cRing{position:fixed;pointer-events:none;z-index:9998;border-radius:50%}
+#cDot{width:5px;height:5px;background:var(--c);top:-3px;left:-3px}
+#cRing{width:34px;height:34px;border:1px solid rgba(0,212,255,.35);top:-17px;left:-17px}
 
-    /* ─── PRELOADER ─────────────────────────────────────────────── */
-    #preloader {
-      position: fixed; inset: 0; z-index: 9999;
-      background: var(--bg);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 2rem;
-    }
+/* ── PRELOADER ───────────────────────────────── */
+#pre{position:fixed;inset:0;z-index:9999;background:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem}
+.pre-logo{font-family:'Space Grotesk',sans-serif;font-weight:800;letter-spacing:.3em;
+  font-size:clamp(1.5rem,4vw,2.2rem);text-transform:uppercase;
+  background:linear-gradient(135deg,#fff,var(--c));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.pre-track{width:min(320px,80vw);height:1px;background:rgba(255,255,255,.08);position:relative;overflow:hidden}
+.pre-fill{position:absolute;top:0;left:0;height:100%;width:0%;
+  background:linear-gradient(90deg,var(--v),var(--c));transition:width .04s linear}
+.pre-pct{font-size:.65rem;letter-spacing:.3em;opacity:.4;font-family:'DM Mono',monospace}
 
-    #preloader .pre-logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(1.4rem, 4vw, 2rem);
-      font-weight: 300;
-      letter-spacing: 0.6em;
-      text-transform: uppercase;
-      color: var(--fg);
-      opacity: 0.9;
-    }
+/* ── VIEW SYSTEM ─────────────────────────────── */
+.view{display:none;min-height:100vh;position:relative;z-index:10}
+.view.active{display:block}
 
-    #preloader .pre-bar-wrap {
-      width: min(360px, 80vw);
-      height: 1px;
-      background: rgba(255,255,255,0.1);
-      position: relative;
-      overflow: hidden;
-    }
+/* ── NAV ─────────────────────────────────────── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.2rem 2.5rem;
+  background:rgba(10,10,18,.72);backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(255,255,255,.05)}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:800;
+  letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
+  background:linear-gradient(135deg,#fff 30%,var(--c));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links li span{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.4);cursor:pointer;transition:color .3s;font-weight:400}
+.nav-links li span:hover,.nav-links li span.on{color:#fff}
+.nav-links li span.on{color:var(--c)}
+.nav-r{display:flex;gap:.7rem}
+.nbtn{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;
+  padding:.5rem 1.1rem;border-radius:999px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .3s}
+.nbtn-g{background:transparent;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)}
+.nbtn-g:hover{border-color:var(--c);color:#fff}
+.nbtn-p{background:linear-gradient(135deg,var(--v),var(--c));border:none;color:#fff;font-weight:600}
+.nbtn-p:hover{opacity:.85}
 
-    #preloader .pre-bar {
-      position: absolute; top: 0; left: 0;
-      height: 100%; width: 0%;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      transition: width 0.05s linear;
-    }
+/* ════════════════════════════════════════════
+   HOME VIEW
+════════════════════════════════════════════ */
+#view-home{overflow-y:auto}
 
-    #preloader .pre-counter {
-      font-size: 0.7rem;
-      letter-spacing: 0.3em;
-      opacity: 0.5;
-      font-weight: 300;
-    }
+/* ── HERO ────────────────────────────────────── */
+.hero{min-height:100vh;display:grid;place-items:center;
+  padding:8rem 3rem 5rem;position:relative}
+.hero-inner{display:flex;flex-direction:column;align-items:center;
+  text-align:center;gap:1.8rem;max-width:900px;margin:0 auto}
+.hero-tag{display:inline-flex;align-items:center;gap:.6rem;
+  border:1px solid rgba(0,212,255,.25);border-radius:999px;
+  padding:.4rem 1rem;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--c);background:rgba(0,212,255,.07);
+  opacity:0;transform:translateY(14px)}
+.hero-tag span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--c);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
 
-    /* ─── CANVAS ────────────────────────────────────────────────── */
-    #canvas-container {
-      position: fixed; inset: 0; z-index: 0;
-      pointer-events: none;
-    }
+.hero-h1{font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(3.2rem,9vw,8.5rem);font-weight:800;
+  line-height:.92;letter-spacing:-.04em}
+.hero-h1 .ln{display:block;overflow:hidden}
+.hero-h1 .ch{display:inline-block;opacity:0;transform:translateY(105%)}
+.hero-h1 .hi{background:linear-gradient(135deg,var(--v),var(--c),var(--p));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
 
-    #webgl {
-      width: 100%; height: 100%;
-      display: block;
-    }
+.hero-sub{font-size:clamp(.9rem,1.6vw,1.05rem);color:var(--muted);
+  max-width:520px;line-height:1.85;opacity:0;transform:translateY(14px);font-weight:300}
 
-    /* ─── NAV ───────────────────────────────────────────────────── */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      padding: 1.8rem 3rem;
-      display: flex; align-items: center; justify-content: space-between;
-      opacity: 0;
-    }
+.hero-btns{display:flex;gap:.9rem;flex-wrap:wrap;justify-content:center;
+  opacity:0;transform:translateY(14px)}
+.hbtn-a{background:linear-gradient(135deg,var(--v),var(--c));
+  border:none;padding:.9rem 2.2rem;border-radius:999px;
+  font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  color:#fff;cursor:pointer;font-weight:700;transition:all .3s;font-family:'Inter',sans-serif}
+.hbtn-a:hover{transform:translateY(-2px);box-shadow:0 12px 35px rgba(124,111,247,.4)}
+.hbtn-b{background:transparent;border:1px solid rgba(255,255,255,.15);
+  padding:.9rem 2.2rem;border-radius:999px;font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(255,255,255,.6);cursor:pointer;transition:all .3s;font-family:'Inter',sans-serif}
+.hbtn-b:hover{border-color:var(--c);color:#fff}
 
-    nav .nav-logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 600;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      background: linear-gradient(135deg, var(--fg) 0%, var(--accent2) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+/* HERO NUMBERS STRIP */
+.hero-strip{display:flex;gap:0;opacity:0;
+  border:1px solid rgba(255,255,255,.07);border-radius:1.2rem;
+  overflow:hidden;margin-top:.5rem}
+.hs-item{flex:1;padding:1.4rem 1.8rem;border-right:1px solid rgba(255,255,255,.06);
+  text-align:center}
+.hs-item:last-child{border-right:none}
+.hs-num{font-family:'Space Grotesk',sans-serif;font-size:1.7rem;font-weight:800;
+  background:linear-gradient(135deg,#fff,var(--vl));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hs-lbl{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-top:.3rem}
 
-    nav ul {
-      list-style: none;
-      display: flex; gap: 2.5rem;
-    }
+/* scroll arrow */
+.s-arrow{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:.5rem;opacity:0}
+.s-arrow span{font-size:.52rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.25)}
+.s-arr-line{width:1px;height:44px;background:linear-gradient(to bottom,rgba(255,255,255,.25),transparent);
+  animation:al 2s ease-in-out infinite}
+@keyframes al{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 
-    nav ul li a {
-      font-size: 0.7rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      text-decoration: none;
-      color: rgba(255,255,255,0.5);
-      font-weight: 300;
-      transition: color 0.3s;
-    }
-    nav ul li a:hover { color: var(--fg); }
+/* ── MARQUEE ─────────────────────────────────── */
+.marquee-wrap{padding:2.5rem 0;border-top:1px solid rgba(255,255,255,.05);
+  border-bottom:1px solid rgba(255,255,255,.05);overflow:hidden;
+  background:rgba(255,255,255,.02)}
+.marquee-track{display:flex;gap:2.5rem;animation:marquee 22s linear infinite;white-space:nowrap}
+.marquee-track:hover{animation-play-state:paused}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.m-chip{display:inline-flex;align-items:center;gap:.55rem;
+  border:1px solid rgba(255,255,255,.08);border-radius:999px;
+  padding:.5rem 1.1rem;font-size:.68rem;letter-spacing:.1em;
+  color:rgba(255,255,255,.45);white-space:nowrap}
+.m-chip .dot{width:7px;height:7px;border-radius:50%}
 
-    nav .nav-cta {
-      font-size: 0.65rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      border: 1px solid rgba(255,255,255,0.15);
-      padding: 0.6rem 1.4rem;
-      border-radius: 999px;
-      cursor: pointer;
-      background: var(--glass-bg);
-      color: var(--fg);
-      transition: border-color 0.3s, background 0.3s;
-      backdrop-filter: blur(12px);
-    }
-    nav .nav-cta:hover {
-      border-color: var(--accent2);
-      background: rgba(0,212,255,0.08);
-    }
+/* ── CAT BENTO ───────────────────────────────── */
+.home-bento{padding:5rem 3rem;max-width:1300px;margin:0 auto}
+.bento-head{margin-bottom:3rem}
+.bento-head .eyebrow{font-size:.6rem;letter-spacing:.38em;text-transform:uppercase;
+  color:var(--c);display:block;margin-bottom:1rem}
+.bento-head h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,4vw,3.2rem);
+  font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.bento-head h2 em{font-style:normal;color:var(--vl)}
 
-    /* ─── SCROLL CONTENT ────────────────────────────────────────── */
-    #scroll-content {
-      position: relative; z-index: 10;
-      pointer-events: none;
-    }
+.cat-bento{display:grid;grid-template-columns:1fr 1fr 1fr;
+  grid-template-rows:auto auto;gap:1.2rem}
+.cbc{border-radius:1.5rem;padding:2.5rem;cursor:pointer;
+  position:relative;overflow:hidden;transition:transform .4s var(--ease),box-shadow .4s;
+  display:flex;flex-direction:column;justify-content:flex-end}
+.cbc:hover{transform:translateY(-6px)}
 
-    /* ─── SECTIONS ──────────────────────────────────────────────── */
-    section {
-      min-height: 100vh;
-      display: flex; align-items: center; justify-content: center;
-      padding: 6rem 3rem;
-      position: relative;
-    }
+.cbc-a{grid-column:1/3;grid-row:1/2;
+  background:linear-gradient(135deg,#1a0e3a 0%,#2d1b6e 50%,#1a2d6e 100%);
+  min-height:280px;border:1px solid rgba(124,111,247,.2)}
+.cbc-a:hover{box-shadow:0 24px 60px rgba(124,111,247,.25)}
+.cbc-a .big-num{font-family:'Space Grotesk',sans-serif;font-size:6rem;font-weight:800;
+  color:rgba(124,111,247,.12);line-height:1;position:absolute;top:1rem;right:1.5rem;
+  letter-spacing:-.05em}
 
-    /* ─── HERO ──────────────────────────────────────────────────── */
-    .hero {
-      flex-direction: column;
-      text-align: center;
-      gap: 2rem;
-    }
+.cbc-b{grid-column:3/4;grid-row:1/2;
+  background:linear-gradient(155deg,#0e2a1a 0%,#0a3d25 100%);
+  min-height:280px;border:1px solid rgba(34,232,122,.15)}
+.cbc-b:hover{box-shadow:0 24px 60px rgba(34,232,122,.15)}
 
-    .hero-eyebrow {
-      font-size: 0.65rem;
-      letter-spacing: 0.4em;
-      text-transform: uppercase;
-      color: var(--accent2);
-      font-weight: 400;
-      opacity: 0;
-      transform: translateY(20px);
-    }
+.cbc-c{grid-column:1/2;grid-row:2/3;
+  background:linear-gradient(135deg,#2a0e1a 0%,#3d0a28 100%);
+  min-height:180px;border:1px solid rgba(255,77,171,.15)}
+.cbc-c:hover{box-shadow:0 24px 60px rgba(255,77,171,.15)}
 
-    .hero-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(3.5rem, 9vw, 9rem);
-      font-weight: 700;
-      line-height: 0.95;
-      letter-spacing: -0.03em;
-      overflow: hidden;
-    }
+.cbc-d{grid-column:2/4;grid-row:2/3;
+  background:linear-gradient(135deg,#1a1a0e 0%,#2a2800 100%);
+  min-height:180px;border:1px solid rgba(255,225,77,.12);
+  flex-direction:row;align-items:center;gap:2rem}
+.cbc-d:hover{box-shadow:0 24px 60px rgba(255,225,77,.1)}
 
-    .hero-title .word {
-      display: inline-block;
-      overflow: hidden;
-    }
-    .hero-title .word .char {
-      display: inline-block;
-      opacity: 0;
-      transform: translateY(110%);
-    }
+.cbc-icon{font-size:2.8rem;margin-bottom:1.2rem;position:relative;z-index:1}
+.cbc-title{font-family:'Space Grotesk',sans-serif;font-size:1.35rem;font-weight:700;
+  margin-bottom:.5rem;position:relative;z-index:1}
+.cbc-desc{font-size:.8rem;color:rgba(255,255,255,.45);line-height:1.7;
+  margin-bottom:1rem;position:relative;z-index:1}
+.cbc-tag{display:inline-flex;align-items:center;gap:.4rem;
+  font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;
+  padding:.3rem .75rem;border-radius:999px;font-weight:600;
+  position:relative;z-index:1;width:fit-content}
+.tag-v{background:rgba(124,111,247,.2);color:var(--vl);border:1px solid rgba(124,111,247,.3)}
+.tag-g{background:rgba(34,232,122,.15);color:var(--g);border:1px solid rgba(34,232,122,.25)}
+.tag-p{background:rgba(255,77,171,.15);color:var(--p);border:1px solid rgba(255,77,171,.25)}
+.tag-y{background:rgba(255,225,77,.12);color:var(--y);border:1px solid rgba(255,225,77,.2)}
 
-    .hero-title span.grad {
-      background: linear-gradient(135deg, #ffffff 30%, var(--accent2) 70%, var(--accent) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+.cbc-d-left{flex:1}
+.cbc-d-right{flex-shrink:0;display:flex;flex-direction:column;gap:.5rem;min-width:120px}
+.mini-course{background:rgba(255,255,255,.05);border-radius:.6rem;padding:.55rem .8rem;
+  font-size:.72rem;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.06)}
 
-    .hero-sub {
-      font-size: clamp(0.85rem, 1.5vw, 1rem);
-      font-weight: 300;
-      color: rgba(255,255,255,0.45);
-      max-width: 500px;
-      line-height: 1.8;
-      opacity: 0;
-      transform: translateY(20px);
-    }
+/* ════════════════════════════════════════════
+   COURSES VIEW
+════════════════════════════════════════════ */
+#view-courses{overflow-y:auto;padding-top:5rem;background:var(--ink)}
 
-    .hero-actions {
-      display: flex; gap: 1rem; align-items: center; justify-content: center;
-      pointer-events: all;
-      opacity: 0;
-      transform: translateY(20px);
-    }
+.crs-hdr{padding:3.5rem 3rem 2rem;max-width:1300px;margin:0 auto}
+.crs-hdr-top{display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;flex-wrap:wrap;margin-bottom:2rem}
+.crs-hdr-left h1{font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.03em;line-height:1.05}
+.crs-hdr-left h1 span{color:var(--vl)}
+.crs-hdr-left p{color:var(--muted);font-size:.88rem;margin-top:.7rem;line-height:1.7;max-width:440px}
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border: none;
-      padding: 0.85rem 2.2rem;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: #fff;
-      cursor: pointer;
-      font-weight: 500;
-      transition: opacity 0.3s, transform 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-    .btn-primary::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: rgba(255,255,255,0.15);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .btn-primary:hover::after { opacity: 1; }
-    .btn-primary:hover { transform: scale(1.03); }
+/* Filter pills */
+.filters{display:flex;gap:.6rem;flex-wrap:wrap}
+.fpill{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;
+  padding:.5rem 1.2rem;border-radius:999px;cursor:pointer;border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.4);background:transparent;transition:all .3s;font-family:'Inter',sans-serif}
+.fpill:hover{border-color:rgba(255,255,255,.3);color:#fff}
+.fpill.on{color:#fff;border-color:transparent}
+.fpill-all.on{background:linear-gradient(135deg,var(--v),var(--c))}
+.fpill-sav.on{background:linear-gradient(135deg,#1a4dff,var(--c))}
+.fpill-pro.on{background:linear-gradient(135deg,#7c6ff7,var(--p))}
+.fpill-des.on{background:linear-gradient(135deg,var(--p),var(--o))}
 
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.15);
-      padding: 0.85rem 2.2rem;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.6);
-      cursor: pointer;
-      font-weight: 400;
-      transition: border-color 0.3s, color 0.3s;
-    }
-    .btn-ghost:hover { border-color: var(--accent2); color: var(--fg); }
+/* ── BENTO COURSES GRID ───────────────────────── */
+.bento-courses{padding:0 3rem 6rem;max-width:1300px;margin:0 auto;
+  display:grid;gap:1.1rem;
+  grid-template-columns:repeat(12,1fr)}
 
-    .scroll-indicator {
-      position: absolute; bottom: 2.5rem; left: 50%;
-      transform: translateX(-50%);
-      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-      opacity: 0;
-    }
-    .scroll-indicator span {
-      font-size: 0.55rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
-    }
-    .scroll-indicator .line {
-      width: 1px; height: 50px;
-      background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
-      animation: scrollLine 2s ease-in-out infinite;
-    }
-    @keyframes scrollLine {
-      0% { transform: scaleY(0); transform-origin: top; }
-      50% { transform: scaleY(1); transform-origin: top; }
-      51% { transform-origin: bottom; }
-      100% { transform: scaleY(0); transform-origin: bottom; }
-    }
+/* card base */
+.kk{border-radius:1.4rem;overflow:hidden;cursor:pointer;position:relative;
+  display:flex;flex-direction:column;
+  transition:transform .4s var(--ease),box-shadow .4s var(--ease);
+  border:1px solid rgba(255,255,255,.07);background:var(--ink2)}
+.kk:hover{transform:translateY(-6px)}
 
-    /* ─── ABOUT SECTION ─────────────────────────────────────────── */
-    .about {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5rem;
-      max-width: 1200px;
-      margin: 0 auto;
-      align-items: center;
-    }
+/* span variants */
+.kk-w4{grid-column:span 4}
+.kk-w3{grid-column:span 3}
+.kk-w6{grid-column:span 6}
+.kk-w8{grid-column:span 8}
+.kk-w12{grid-column:span 12}
 
-    .about-label {
-      font-size: 0.6rem;
-      letter-spacing: 0.4em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 1.5rem;
-      opacity: 0;
-    }
+/* thumb colors — each unique */
+.th-word  {background:linear-gradient(145deg,#003b8f,#0078d4,#00a8ff);color:#fff}
+.th-excel {background:linear-gradient(145deg,#003d1f,#1a7d3a,#2ecc71);color:#fff}
+.th-ppt   {background:linear-gradient(145deg,#8c1a00,#d24726,#ff7043);color:#fff}
+.th-net   {background:linear-gradient(145deg,#a35800,#e8820c,#ffb347);color:#fff}
+.th-gmail {background:linear-gradient(145deg,#8c0000,#d32f2f,#ff6659);color:#fff}
+.th-tg    {background:linear-gradient(145deg,#00527a,#0088cc,#29b6f6);color:#fff}
+.th-canva {background:linear-gradient(145deg,#4a00b4,#7d2ae8,#b85cff);color:#fff}
+.th-html  {background:linear-gradient(145deg,#8c2900,#e34f26,#f06529);color:#fff}
+.th-css   {background:linear-gradient(145deg,#13277a,#2965f1,#4d8df5);color:#fff}
+.th-js    {background:linear-gradient(145deg,#856b00,#c8a500,#f7df1e);color:#111}
+.th-react {background:linear-gradient(145deg,#003d5c,#00b7d4,#61dafb);color:#fff}
+.th-py    {background:linear-gradient(145deg,#1a3a6b,#3572a5,#5da8d0);color:#fff}
+.th-bot   {background:linear-gradient(145deg,#1a0070,#4c00e0,#7c6ff7);color:#fff}
+.th-git   {background:linear-gradient(145deg,#8c1800,#c0392b,#e74c3c);color:#fff}
 
-    .about-heading {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2rem, 4vw, 3.2rem);
-      font-weight: 500;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      margin-bottom: 2rem;
-    }
+.kk-thumb{display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.kk-thumb .em{font-size:3.5rem;position:relative;z-index:1;
+  filter:drop-shadow(0 4px 16px rgba(0,0,0,.35))}
+.kk-thumb .glow{position:absolute;inset:0;opacity:.5;
+  background:inherit;filter:blur(30px) brightness(1.5)}
+.kk-thumb .th-h-sm{height:140px}
+.kk-thumb .th-h-md{height:180px}
+.kk-thumb .th-h-lg{height:220px}
+.kk-thumb .th-h-xl{height:260px}
 
-    .about-heading .reveal-line {
-      display: block;
-      overflow: hidden;
-    }
-    .about-heading .reveal-line .inner {
-      display: block;
-      opacity: 0;
-      transform: translateY(100%);
-    }
+/* featured card: thumb on side */
+.kk-side{flex-direction:row}
+.kk-side .kk-thumb{width:280px;flex-shrink:0;height:auto;min-height:200px}
+.kk-side .kk-body{flex:1}
 
-    .about-body {
-      font-size: 0.9rem;
-      color: rgba(255,255,255,0.45);
-      line-height: 1.9;
-      opacity: 0;
-      font-weight: 300;
-    }
+/* compact card: no thumb at all */
+.kk-compact .kk-head{padding:1.6rem 1.8rem;flex:1;display:flex;flex-direction:column;justify-content:space-between}
+.kk-compact .em-inline{font-size:2.2rem;margin-bottom:.8rem}
 
-    .about-stats {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
+.kk-body{padding:1.5rem 1.8rem;display:flex;flex-direction:column;gap:.7rem;flex:1}
+.kk-cat{display:inline-flex;align-items:center;gap:.35rem;
+  font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;
+  padding:.24rem .65rem;border-radius:999px;font-weight:600;width:fit-content}
+.cat-s{background:rgba(0,212,255,.12);color:var(--c);border:1px solid rgba(0,212,255,.2)}
+.cat-p{background:rgba(124,111,247,.15);color:var(--vl);border:1px solid rgba(124,111,247,.25)}
+.cat-d{background:rgba(255,77,171,.12);color:var(--p);border:1px solid rgba(255,77,171,.2)}
 
-    .stat-card {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(20px);
-      border-radius: 1rem;
-      padding: 1.8rem;
-      opacity: 0;
-      transform: translateY(30px);
-      pointer-events: all;
-      transition: border-color 0.4s, background 0.4s, transform 0.4s;
-      cursor: default;
-    }
-    .stat-card:hover {
-      border-color: rgba(108,99,255,0.4);
-      background: rgba(108,99,255,0.06);
-      transform: translateY(-4px) !important;
-    }
+.kk-title{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;
+  line-height:1.3;letter-spacing:-.01em}
+.kk-title.big{font-size:1.25rem}
+.kk-desc{font-size:.78rem;color:rgba(255,255,255,.4);line-height:1.7}
 
-    .stat-number {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 2.5rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--fg), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      line-height: 1;
-      margin-bottom: 0.4rem;
-    }
+.kk-meta{display:flex;gap:1rem;padding-top:.7rem;
+  border-top:1px solid rgba(255,255,255,.05);flex-wrap:wrap}
+.km{font-size:.65rem;color:rgba(255,255,255,.3);display:flex;align-items:center;gap:.3rem}
 
-    .stat-label {
-      font-size: 0.65rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.35);
-      font-weight: 300;
-    }
+.kk-footer{padding:.8rem 1.8rem 1.4rem;display:flex;align-items:center;justify-content:space-between}
+.kk-price{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:800}
+.kk-price.free{color:var(--g)}
+.kk-price.paid{background:linear-gradient(135deg,var(--fg),var(--vl));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.enr-btn{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+  padding:.45rem 1.1rem;border-radius:999px;border:none;cursor:pointer;
+  font-weight:700;transition:all .3s;font-family:'Inter',sans-serif}
+.enr-s{background:rgba(0,212,255,.15);color:var(--c);border:1px solid rgba(0,212,255,.25)}
+.enr-s:hover{background:var(--c);color:var(--ink)}
+.enr-p{background:rgba(124,111,247,.2);color:var(--vl);border:1px solid rgba(124,111,247,.3)}
+.enr-p:hover{background:var(--v);color:#fff}
+.enr-d{background:rgba(255,77,171,.15);color:var(--p);border:1px solid rgba(255,77,171,.25)}
+.enr-d:hover{background:var(--p);color:#fff}
 
-    /* ─── FEATURES SECTION ──────────────────────────────────────── */
-    .features {
-      flex-direction: column;
-      gap: 4rem;
-      max-width: 1200px;
-      margin: 0 auto;
-      width: 100%;
-    }
+/* level bars */
+.lvl-bars{display:flex;gap:3px}
+.lb{width:18px;height:3px;border-radius:2px;background:rgba(255,255,255,.1)}
+.lb.on-s{background:var(--c)}
+.lb.on-p{background:var(--vl)}
+.lb.on-d{background:var(--p)}
 
-    .features-header {
-      text-align: center;
-    }
+/* Featured badge */
+.feat-badge{position:absolute;top:1rem;left:1rem;z-index:2;
+  display:inline-flex;align-items:center;gap:.35rem;
+  background:rgba(255,225,77,.15);color:var(--y);
+  border:1px solid rgba(255,225,77,.3);border-radius:999px;
+  font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;
+  padding:.28rem .7rem;font-weight:600;backdrop-filter:blur(10px)}
 
-    .section-label {
-      font-size: 0.6rem;
-      letter-spacing: 0.4em;
-      text-transform: uppercase;
-      color: var(--accent2);
-      margin-bottom: 1.2rem;
-      opacity: 0;
-    }
+/* Popular badge */
+.pop-badge{position:absolute;top:1rem;right:1rem;z-index:2;
+  background:rgba(255,107,107,.15);color:#ff9999;
+  border:1px solid rgba(255,107,107,.25);border-radius:999px;
+  font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;
+  padding:.28rem .7rem;font-weight:600;backdrop-filter:blur(10px)}
 
-    .section-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2rem, 4.5vw, 3.5rem);
-      font-weight: 600;
-      letter-spacing: -0.025em;
-      line-height: 1.1;
-    }
+/* ── HIDDEN when filtered out ─── */
+.kk.hidden{display:none}
 
-    .section-title .reveal-line {
-      display: block;
-      overflow: hidden;
-    }
-    .section-title .reveal-line .inner {
-      display: block;
-      opacity: 0;
-      transform: translateY(100%);
-    }
+/* ════════════════════════════════════════════
+   COURSE MODAL
+════════════════════════════════════════════ */
+#mol{position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,.88);backdrop-filter:blur(14px);
+  display:none;align-items:center;justify-content:center;padding:1.5rem}
+#mol.open{display:flex}
+.mol-box{background:#0e0e22;border:1px solid rgba(255,255,255,.1);
+  border-radius:1.6rem;width:min(680px,100%);max-height:90vh;overflow-y:auto;
+  position:relative;animation:molin .4s var(--ease)}
+@keyframes molin{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+.mol-top{height:220px;display:flex;align-items:center;justify-content:center;
+  font-size:5rem;border-radius:1.6rem 1.6rem 0 0;position:relative}
+.mol-x{position:absolute;top:1rem;right:1rem;width:36px;height:36px;
+  background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);
+  border-radius:50%;cursor:pointer;color:#fff;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;transition:all .3s;backdrop-filter:blur(10px)}
+.mol-x:hover{background:rgba(255,255,255,.12)}
+.mol-body{padding:2rem 2.5rem 2.5rem}
+.mol-title{font-family:'Space Grotesk',sans-serif;font-size:1.7rem;
+  font-weight:800;margin:1rem 0 .5rem;letter-spacing:-.02em}
+.mol-desc{color:var(--muted);font-size:.87rem;line-height:1.8;margin-bottom:1.5rem}
+.mol-kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.8rem}
+.mkpi{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
+  border-radius:.8rem;padding:1rem;text-align:center}
+.mkpi-v{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:800;color:var(--c)}
+.mkpi-l{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-top:.2rem}
+.cur-head{font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-bottom:1rem}
+.cur-list{list-style:none;display:flex;flex-direction:column;gap:.45rem;margin-bottom:2rem}
+.cur-list li{display:flex;align-items:center;gap:.7rem;
+  font-size:.83rem;padding:.55rem .8rem;
+  background:rgba(255,255,255,.03);border-radius:.5rem;color:rgba(255,255,255,.7);
+  border:1px solid rgba(255,255,255,.04)}
+.cur-list li .ck{color:var(--c);font-size:.7rem;flex-shrink:0}
+.mol-enr{width:100%;padding:.95rem;border-radius:999px;
+  background:linear-gradient(135deg,var(--v),var(--c));
+  border:none;color:#fff;font-size:.76rem;letter-spacing:.16em;
+  text-transform:uppercase;font-weight:700;cursor:pointer;
+  transition:all .3s;font-family:'Inter',sans-serif}
+.mol-enr:hover{opacity:.85;transform:scale(1.01)}
 
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-      width: 100%;
-    }
+/* ════════════════════════════════════════════
+   ADMIN VIEW
+════════════════════════════════════════════ */
+#view-admin{overflow-y:auto;padding-top:5rem;background:var(--ink)}
 
-    .feature-card {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(24px);
-      border-radius: 1.25rem;
-      padding: 2.5rem 2rem;
-      opacity: 0;
-      transform: translateY(40px);
-      pointer-events: all;
-      cursor: default;
-      position: relative;
-      overflow: hidden;
-      transition: border-color 0.4s var(--ease), background 0.4s;
-    }
+/* Login */
+.adm-login{min-height:calc(100vh - 5rem);display:flex;align-items:center;justify-content:center}
+.lc{background:rgba(14,14,34,.95);border:1px solid rgba(124,111,247,.25);
+  border-radius:1.6rem;padding:3rem;width:min(430px,92vw);backdrop-filter:blur(20px)}
+.lc-ico{font-size:3rem;text-align:center;margin-bottom:1.5rem}
+.lc-t{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:800;
+  text-align:center;margin-bottom:.4rem}
+.lc-s{color:rgba(255,255,255,.35);font-size:.82rem;text-align:center;margin-bottom:2rem;line-height:1.6}
+.fg{margin-bottom:1rem}
+.fl{display:block;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(255,255,255,.35);margin-bottom:.5rem}
+.fi{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  border-radius:.6rem;padding:.8rem 1rem;color:var(--fg);font-size:.88rem;
+  font-family:'Inter',sans-serif;transition:border-color .3s;outline:none}
+.fi:focus{border-color:var(--v)}
+.fi::placeholder{color:rgba(255,255,255,.18)}
+select.fi option{background:#0e0e22}
+textarea.fi{min-height:80px;resize:vertical;line-height:1.6}
+.lerr{color:#ff6b6b;font-size:.75rem;text-align:center;margin-bottom:.8rem;display:none}
+.lbtn{width:100%;padding:.9rem;border-radius:999px;
+  background:linear-gradient(135deg,var(--v),var(--c));
+  border:none;color:#fff;font-size:.74rem;letter-spacing:.16em;
+  text-transform:uppercase;font-weight:700;cursor:pointer;
+  transition:all .3s;font-family:'Inter',sans-serif}
+.lbtn:hover{opacity:.85}
+.lhint{font-size:.65rem;color:rgba(255,255,255,.18);text-align:center;
+  margin-top:1.2rem;font-family:'DM Mono',monospace}
 
-    .feature-card::before {
-      content: '';
-      position: absolute;
-      top: -50%; left: -50%;
-      width: 200%; height: 200%;
-      background: radial-gradient(circle at center, rgba(108,99,255,0.08), transparent 60%);
-      opacity: 0;
-      transition: opacity 0.5s;
-    }
-    .feature-card:hover::before { opacity: 1; }
-    .feature-card:hover {
-      border-color: rgba(108,99,255,0.35);
-    }
+/* Dashboard */
+#adm-dash{display:none;padding:2.5rem 3rem 6rem}
+.adm-head{display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:2.5rem;gap:1rem;flex-wrap:wrap}
+.adm-head-l h1{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-.02em}
+.adm-head-l p{color:rgba(255,255,255,.35);font-size:.82rem;margin-top:.25rem}
+.adm-kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:1rem;margin-bottom:3rem}
+.ak{background:var(--ink2);border:1px solid rgba(255,255,255,.06);
+  border-radius:1rem;padding:1.5rem}
+.ak-ico{font-size:1.6rem;margin-bottom:.8rem}
+.ak-v{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:800;color:var(--c)}
+.ak-l{font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-top:.3rem}
 
-    .feature-icon {
-      width: 44px; height: 44px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, rgba(108,99,255,0.3), rgba(0,212,255,0.15));
-      border: 1px solid rgba(108,99,255,0.3);
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 1.5rem;
-      font-size: 1.1rem;
-    }
+/* Admin section */
+.as{margin-bottom:3rem}
+.as-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem}
+.as-hd h2{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700}
+.add-btn{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
+  background:linear-gradient(135deg,var(--v),var(--c));border:none;
+  padding:.5rem 1.1rem;border-radius:999px;color:#fff;cursor:pointer;
+  font-weight:600;transition:all .3s;font-family:'Inter',sans-serif}
+.add-btn:hover{opacity:.82}
 
-    .feature-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.05rem;
-      font-weight: 500;
-      margin-bottom: 0.8rem;
-      letter-spacing: -0.01em;
-    }
+/* Table */
+.tw{background:var(--ink2);border:1px solid rgba(255,255,255,.06);
+  border-radius:1rem;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);padding:.9rem 1.1rem;text-align:left;
+  border-bottom:1px solid rgba(255,255,255,.05);font-weight:400}
+td{padding:.85rem 1.1rem;font-size:.8rem;color:rgba(255,255,255,.7);
+  border-bottom:1px solid rgba(255,255,255,.04)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.td-b{display:inline-block;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.2rem .55rem;border-radius:999px}
+.tdb-s{background:rgba(0,212,255,.12);color:var(--c)}
+.tdb-p{background:rgba(124,111,247,.15);color:var(--vl)}
+.tdb-d{background:rgba(255,77,171,.12);color:var(--p)}
+.td-act button{font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid rgba(255,255,255,.1);padding:.28rem .65rem;border-radius:999px;
+  cursor:pointer;background:transparent;color:rgba(255,255,255,.45);
+  transition:all .3s;font-family:'Inter',sans-serif;margin-right:.35rem}
+.td-act button:hover{border-color:var(--c);color:#fff}
+.td-act button.del:hover{border-color:#ff6b6b;color:#ff6b6b}
 
-    .feature-text {
-      font-size: 0.82rem;
-      color: rgba(255,255,255,0.4);
-      line-height: 1.75;
-      font-weight: 300;
-    }
+/* ── FORM MODAL ─── */
+#fm{position:fixed;inset:0;z-index:2000;
+  background:rgba(0,0,0,.88);backdrop-filter:blur(12px);
+  display:none;align-items:center;justify-content:center;padding:1.5rem}
+#fm.open{display:flex}
+.fm-card{background:#0e0e22;border:1px solid rgba(124,111,247,.25);
+  border-radius:1.5rem;padding:2.5rem;width:min(540px,95vw);
+  max-height:92vh;overflow-y:auto}
+.fm-card h2{font-family:'Space Grotesk',sans-serif;font-size:1.25rem;
+  font-weight:800;margin-bottom:1.5rem;letter-spacing:-.01em}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.fa{display:flex;gap:.7rem;margin-top:1.5rem}
+.fa-cancel{flex:1;padding:.75rem;border-radius:999px;
+  background:transparent;border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.4);font-size:.7rem;cursor:pointer;transition:all .3s;font-family:'Inter',sans-serif}
+.fa-cancel:hover{border-color:#ff6b6b;color:#ff6b6b}
+.fa-save{flex:2;padding:.75rem;border-radius:999px;
+  background:linear-gradient(135deg,var(--v),var(--c));border:none;
+  color:#fff;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;
+  font-weight:700;cursor:pointer;transition:all .3s;font-family:'Inter',sans-serif}
+.fa-save:hover{opacity:.85}
 
-    /* ─── CTA SECTION ───────────────────────────────────────────── */
-    .cta-section {
-      flex-direction: column;
-      text-align: center;
-      gap: 2.5rem;
-    }
+/* ── ENROLL MODAL ─── */
+#em{position:fixed;inset:0;z-index:1500;
+  background:rgba(0,0,0,.88);backdrop-filter:blur(14px);
+  display:none;align-items:center;justify-content:center;padding:1.5rem}
+#em.open{display:flex}
+.em-card{background:#0e0e22;border:1px solid rgba(0,212,255,.2);
+  border-radius:1.5rem;padding:2.5rem;width:min(460px,95vw);position:relative;
+  animation:molin .4s var(--ease)}
+.em-card h2{font-family:'Space Grotesk',sans-serif;font-size:1.25rem;font-weight:800;margin-bottom:.4rem}
+.em-card>p{color:rgba(255,255,255,.35);font-size:.82rem;margin-bottom:1.8rem;line-height:1.6}
 
-    .cta-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2.5rem, 6vw, 5.5rem);
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: -0.03em;
-    }
+/* ── TOAST ─── */
+#toast{position:fixed;bottom:2rem;right:2rem;z-index:3000;
+  background:rgba(14,14,34,.98);border:1px solid rgba(124,111,247,.35);
+  border-radius:.8rem;padding:.9rem 1.4rem;font-size:.8rem;color:var(--fg);
+  transform:translateY(100px);opacity:0;transition:all .4s var(--ease);
+  backdrop-filter:blur(20px);display:flex;align-items:center;gap:.65rem;max-width:300px}
+#toast.on{transform:translateY(0);opacity:1}
 
-    .cta-title .reveal-line {
-      display: block;
-      overflow: hidden;
-    }
-    .cta-title .reveal-line .inner {
-      display: block;
-      opacity: 0;
-      transform: translateY(100%);
-    }
-
-    .cta-sub {
-      font-size: 0.9rem;
-      color: rgba(255,255,255,0.4);
-      max-width: 420px;
-      line-height: 1.8;
-      opacity: 0;
-      font-weight: 300;
-    }
-
-    .cta-actions {
-      display: flex; gap: 1rem; align-items: center; justify-content: center;
-      pointer-events: all;
-      opacity: 0;
-    }
-
-    /* ─── FOOTER ────────────────────────────────────────────────── */
-    footer {
-      position: relative; z-index: 10;
-      padding: 3rem;
-      border-top: 1px solid rgba(255,255,255,0.05);
-      display: flex; align-items: center; justify-content: space-between;
-      pointer-events: all;
-    }
-
-    footer .foot-logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 600;
-      letter-spacing: 0.2em;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      opacity: 0.5;
-    }
-
-    footer .foot-copy {
-      font-size: 0.65rem;
-      letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.25);
-    }
-
-    footer .foot-links {
-      display: flex; gap: 2rem;
-      list-style: none;
-    }
-    footer .foot-links li a {
-      font-size: 0.65rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-    footer .foot-links li a:hover { color: var(--fg); }
-
-    /* ─── NOISE OVERLAY ─────────────────────────────────────────── */
-    .noise {
-      position: fixed; inset: 0; z-index: 200;
-      pointer-events: none;
-      opacity: 0.03;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    }
-
-    /* ─── CURSOR ────────────────────────────────────────────────── */
-    .cursor-dot, .cursor-ring {
-      position: fixed; pointer-events: none; z-index: 9998; border-radius: 50%;
-    }
-    .cursor-dot {
-      width: 5px; height: 5px;
-      background: var(--accent2);
-      top: -3px; left: -3px;
-    }
-    .cursor-ring {
-      width: 36px; height: 36px;
-      border: 1px solid rgba(0,212,255,0.4);
-      top: -18px; left: -18px;
-      transition: transform 0.1s, opacity 0.2s;
-    }
-
-    @media (max-width: 768px) {
-      nav ul { display: none; }
-      .about { grid-template-columns: 1fr; gap: 3rem; }
-      .features-grid { grid-template-columns: 1fr; }
-      section { padding: 5rem 1.5rem; }
-      nav { padding: 1.5rem; }
-      footer { flex-direction: column; gap: 1rem; text-align: center; }
-      .cursor-dot, .cursor-ring { display: none; }
-    }
-  </style>
+/* ── RESPONSIVE ─── */
+@media(max-width:1024px){
+  .kk-w8{grid-column:span 12}
+  .kk-w4{grid-column:span 6}
+  .kk-w6{grid-column:span 12}
+  .kk-side{flex-direction:column}
+  .kk-side .kk-thumb{width:100%;min-height:160px}
+  .cat-bento{grid-template-columns:1fr 1fr}
+  .cbc-a{grid-column:1/3}
+  .cbc-b,.cbc-c{grid-column:span 1}
+  .cbc-d{grid-column:1/3;flex-direction:column}
+}
+@media(max-width:768px){
+  nav .nav-links{display:none}
+  .kk-w4,.kk-w3,.kk-w6,.kk-w8,.kk-w12{grid-column:span 12}
+  .cat-bento{grid-template-columns:1fr}
+  .cbc-a,.cbc-b,.cbc-c,.cbc-d{grid-column:span 1}
+  .home-bento,.bento-courses,.crs-hdr{padding-left:1.5rem;padding-right:1.5rem}
+  #adm-dash{padding:1.5rem 1.5rem 5rem}
+  .mol-body{padding:1.5rem}
+  .fr{grid-template-columns:1fr}
+  .hero{padding:7rem 1.5rem 4rem}
+  .hero-strip .hs-item{padding:1rem}
+  .hs-num{font-size:1.3rem}
+  #cDot,#cRing{display:none}
+}
+</style>
 </head>
 <body>
+<div class="noise"></div>
+<div id="cRing"></div>
+<div id="cDot"></div>
 
-  <!-- Noise Film Grain -->
-  <div class="noise"></div>
+<!-- PRELOADER -->
+<div id="pre">
+  <div class="pre-logo">EduNexus</div>
+  <div class="pre-track"><div class="pre-fill" id="pf"></div></div>
+  <div class="pre-pct" id="pp">0%</div>
+</div>
 
-  <!-- Custom Cursor -->
-  <div class="cursor-ring" id="cursorRing"></div>
-  <div class="cursor-dot" id="cursorDot"></div>
+<!-- CANVAS -->
+<div id="canvas-container"><canvas id="webgl"></canvas></div>
 
-  <!-- ── PRELOADER ──────────────────────────────────────────────── -->
-  <div id="preloader">
-    <div class="pre-logo">NEXUS</div>
-    <div class="pre-bar-wrap">
-      <div class="pre-bar" id="preBar"></div>
-    </div>
-    <div class="pre-counter" id="preCounter">0%</div>
+<!-- NAV -->
+<nav style="opacity:0" id="nav">
+  <div class="nav-logo" onclick="gv('home')">EduNexus</div>
+  <ul class="nav-links">
+    <li><span onclick="gv('home')"    id="nl-home"    class="on">Bosh sahifa</span></li>
+    <li><span onclick="gv('courses')" id="nl-courses">Kurslar</span></li>
+    <li><span onclick="gv('admin')"   id="nl-admin">Admin</span></li>
+  </ul>
+  <div class="nav-r">
+    <button class="nbtn nbtn-g" onclick="gv('courses')">Kurslar</button>
+    <button class="nbtn nbtn-p" onclick="openEM(null)">Yozilish</button>
   </div>
+</nav>
 
-  <!-- ── WEBGL CANVAS ──────────────────────────────────────────── -->
-  <div id="canvas-container">
-    <canvas id="webgl"></canvas>
-  </div>
+<!-- ══════════════════════════════════════════
+     HOME
+══════════════════════════════════════════ -->
+<div class="view active" id="view-home">
 
-  <!-- ── NAV ──────────────────────────────────────────────────── -->
-  <nav id="nav">
-    <div class="nav-logo">Nexus</div>
-    <ul>
-      <li><a href="#">Work</a></li>
-      <li><a href="#">Studio</a></li>
-      <li><a href="#">Process</a></li>
-      <li><a href="#">Lab</a></li>
-    </ul>
-    <button class="nav-cta">Get Started</button>
-  </nav>
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-tag"><span></span>O'zbekistondagi eng yaxshi onlayn ta'lim</div>
 
-  <!-- ── SCROLL CONTENT ────────────────────────────────────────── -->
-  <div id="scroll-content">
-
-    <!-- HERO -->
-    <section class="hero" id="hero">
-      <p class="hero-eyebrow">Redefining Digital Boundaries</p>
-      <h1 class="hero-title">
-        <span class="word"><span class="char">B</span><span class="char">e</span><span class="char">y</span><span class="char">o</span><span class="char">n</span><span class="char">d</span></span>&nbsp;
-        <span class="word"><span class="char grad">V</span><span class="char grad">i</span><span class="char grad">s</span><span class="char grad">i</span><span class="char grad">o</span><span class="char grad">n</span></span>
+      <h1 class="hero-h1">
+        <span class="ln"><span class="ch">B</span><span class="ch">i</span><span class="ch">l</span><span class="ch">i</span><span class="ch">m</span>&nbsp;—</span>
+        <span class="ln"><span class="ch hi">K</span><span class="ch hi">u</span><span class="ch hi">c</span><span class="ch hi">h</span><span class="ch hi">i</span><span class="ch hi">n</span><span class="ch hi">g</span><span class="ch hi">i</span><span class="ch hi">z</span><span class="ch hi">!</span></span>
       </h1>
+
       <p class="hero-sub">
-        We craft immersive digital experiences that transcend the ordinary — where technology meets art, and data breathes life.
+        Kompyuter savodxonligidan professional dasturlashgacha — siz tanlagan yo'lda ustoz hamrohingiz. Amaliy bilim, haqiqiy natija.
       </p>
-      <div class="hero-actions">
-        <button class="btn-primary">Explore Work</button>
-        <button class="btn-ghost">Our Process</button>
-      </div>
-      <div class="scroll-indicator">
-        <span>Scroll</span>
-        <div class="line"></div>
-      </div>
-    </section>
 
-    <!-- ABOUT -->
-    <section id="about">
-      <div class="about">
-        <div class="about-left">
-          <p class="about-label">About Nexus</p>
-          <h2 class="about-heading">
-            <span class="reveal-line"><span class="inner">Quantum-level precision.</span></span>
-            <span class="reveal-line"><span class="inner">Human-scale impact.</span></span>
-          </h2>
-          <p class="about-body">
-            We are a collective of engineers, designers, and dreamers pushing the limits of what is possible on the web. Every interaction is a statement. Every pixel, a decision. We build with intention — and the world notices.
-          </p>
+      <div class="hero-btns">
+        <button class="hbtn-a" onclick="gv('courses')">Kurslarni Ko'rish →</button>
+        <button class="hbtn-b" onclick="openEM(null)">Bepul Konsultatsiya</button>
+      </div>
+
+      <div class="hero-strip">
+        <div class="hs-item"><div class="hs-num">3 500+</div><div class="hs-lbl">O'quvchilar</div></div>
+        <div class="hs-item"><div class="hs-num">14</div><div class="hs-lbl">Kurslar</div></div>
+        <div class="hs-item"><div class="hs-num">200+</div><div class="hs-lbl">Darslar</div></div>
+        <div class="hs-item"><div class="hs-num">98%</div><div class="hs-lbl">Mamnunlik</div></div>
+      </div>
+    </div>
+    <div class="s-arrow"><span>Pastga suring</span><div class="s-arr-line"></div></div>
+  </div>
+
+  <!-- Marquee -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span class="m-chip"><span class="dot" style="background:#0078d4"></span>Microsoft Word</span>
+      <span class="m-chip"><span class="dot" style="background:#217346"></span>Microsoft Excel</span>
+      <span class="m-chip"><span class="dot" style="background:#d24726"></span>PowerPoint</span>
+      <span class="m-chip"><span class="dot" style="background:#00d4ff"></span>Internet Asoslari</span>
+      <span class="m-chip"><span class="dot" style="background:#ea4335"></span>Gmail & Google</span>
+      <span class="m-chip"><span class="dot" style="background:#0088cc"></span>Telegram</span>
+      <span class="m-chip"><span class="dot" style="background:#e34f26"></span>HTML & CSS</span>
+      <span class="m-chip"><span class="dot" style="background:#f7df1e"></span>JavaScript</span>
+      <span class="m-chip"><span class="dot" style="background:#00d8ff"></span>React</span>
+      <span class="m-chip"><span class="dot" style="background:#3572a5"></span>Python</span>
+      <span class="m-chip"><span class="dot" style="background:#7c6ff7"></span>Telegram Bot</span>
+      <span class="m-chip"><span class="dot" style="background:#7d2ae8"></span>Canva Dizayn</span>
+      <!-- duplicate for seamless loop -->
+      <span class="m-chip"><span class="dot" style="background:#0078d4"></span>Microsoft Word</span>
+      <span class="m-chip"><span class="dot" style="background:#217346"></span>Microsoft Excel</span>
+      <span class="m-chip"><span class="dot" style="background:#d24726"></span>PowerPoint</span>
+      <span class="m-chip"><span class="dot" style="background:#00d4ff"></span>Internet Asoslari</span>
+      <span class="m-chip"><span class="dot" style="background:#ea4335"></span>Gmail & Google</span>
+      <span class="m-chip"><span class="dot" style="background:#0088cc"></span>Telegram</span>
+      <span class="m-chip"><span class="dot" style="background:#e34f26"></span>HTML & CSS</span>
+      <span class="m-chip"><span class="dot" style="background:#f7df1e"></span>JavaScript</span>
+      <span class="m-chip"><span class="dot" style="background:#00d8ff"></span>React</span>
+      <span class="m-chip"><span class="dot" style="background:#3572a5"></span>Python</span>
+      <span class="m-chip"><span class="dot" style="background:#7c6ff7"></span>Telegram Bot</span>
+      <span class="m-chip"><span class="dot" style="background:#7d2ae8"></span>Canva Dizayn</span>
+    </div>
+  </div>
+
+  <!-- Category Bento -->
+  <div class="home-bento">
+    <div class="bento-head">
+      <span class="eyebrow">Yo'nalishlar</span>
+      <h2>Qaysi yo'lni <em>tanlaymiz?</em></h2>
+    </div>
+    <div class="cat-bento">
+      <div class="cbc cbc-a" onclick="fag('savod')">
+        <div class="big-num">06</div>
+        <div class="cbc-icon">💻</div>
+        <div class="cbc-title">Kompyuter Savodxonligi</div>
+        <div class="cbc-desc">Word, Excel, PowerPoint, Internet, Gmail va Telegram. Mutlaq boshlang'ich uchun mo'ljallangan.</div>
+        <div class="cbc-tag tag-v">6 kurs · Boshlang'ich →</div>
+      </div>
+      <div class="cbc cbc-b" onclick="fag('prog')">
+        <div class="cbc-icon">⌨️</div>
+        <div class="cbc-title">Dasturlash</div>
+        <div class="cbc-desc">HTML, CSS, JS, React, Python, Bot. Kasbiy ko'nikmalar.</div>
+        <div class="cbc-tag tag-g">7 kurs · Barcha daraja →</div>
+      </div>
+      <div class="cbc cbc-c" onclick="fag('design')">
+        <div class="cbc-icon">🎨</div>
+        <div class="cbc-title">Dizayn</div>
+        <div class="cbc-desc">Canva bilan professional kontentlar yaratish.</div>
+        <div class="cbc-tag tag-p">1 kurs →</div>
+      </div>
+      <div class="cbc cbc-d" onclick="gv('courses')">
+        <div class="cbc-d-left">
+          <div class="cbc-icon">🚀</div>
+          <div class="cbc-title">Barchasi bir joyda</div>
+          <div class="cbc-desc">14 ta kurs, 200+ dars, amaliy loyihalar, sertifikat</div>
+          <div class="cbc-tag tag-y">Hamma kurslarni ko'rish →</div>
         </div>
-        <div class="about-stats">
-          <div class="stat-card">
-            <div class="stat-number">240+</div>
-            <div class="stat-label">Projects Launched</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number">98%</div>
-            <div class="stat-label">Client Satisfaction</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number">12×</div>
-            <div class="stat-label">Avg. ROI Increase</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number">08</div>
-            <div class="stat-label">Years of Mastery</div>
-          </div>
+        <div class="cbc-d-right">
+          <div class="mini-course">📝 Word</div>
+          <div class="mini-course">📊 Excel</div>
+          <div class="mini-course">⚛️ React</div>
+          <div class="mini-course">🤖 Bot</div>
         </div>
       </div>
-    </section>
+    </div>
+  </div>
 
-    <!-- FEATURES -->
-    <section id="features">
-      <div class="features">
-        <div class="features-header">
-          <p class="section-label">Our Capabilities</p>
-          <h2 class="section-title">
-            <span class="reveal-line"><span class="inner">Everything you need.</span></span>
-            <span class="reveal-line"><span class="inner">Nothing you don't.</span></span>
-          </h2>
+</div><!-- /home -->
+
+<!-- ══════════════════════════════════════════
+     COURSES
+══════════════════════════════════════════ -->
+<div class="view" id="view-courses">
+  <div class="crs-hdr">
+    <div class="crs-hdr-top">
+      <div class="crs-hdr-left">
+        <h1>Barcha <span>Kurslar</span></h1>
+        <p>14 ta kurs — savodxonlikdan tortib professional dasturlashgacha.</p>
+      </div>
+      <div class="filters" id="filters">
+        <button class="fpill fpill-all on" onclick="fc('all',this)">Barchasi (14)</button>
+        <button class="fpill fpill-sav"    onclick="fc('savod',this)">💻 Savodxonlik (6)</button>
+        <button class="fpill fpill-pro"    onclick="fc('prog',this)">⌨️ Dasturlash (7)</button>
+        <button class="fpill fpill-des"    onclick="fc('design',this)">🎨 Dizayn (1)</button>
+      </div>
+    </div>
+  </div>
+  <div class="bento-courses" id="cg"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     ADMIN
+══════════════════════════════════════════ -->
+<div class="view" id="view-admin">
+  <div class="adm-login" id="adm-login">
+    <div class="lc">
+      <div class="lc-ico">🔐</div>
+      <div class="lc-t">Admin Paneli</div>
+      <div class="lc-s">EduNexus boshqaruv tizimiga kirish</div>
+      <div class="lerr" id="lerr">Noto'g'ri ma'lumotlar!</div>
+      <div class="fg"><label class="fl">Foydalanuvchi</label>
+        <input class="fi" id="au" type="text" placeholder="admin"/></div>
+      <div class="fg"><label class="fl">Parol</label>
+        <input class="fi" id="ap" type="password" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <button class="lbtn" onclick="doLogin()">Kirish →</button>
+      <div class="lhint">Demo: admin / admin123</div>
+    </div>
+  </div>
+
+  <div id="adm-dash">
+    <div class="adm-head">
+      <div class="adm-head-l">
+        <h1>Boshqaruv Paneli 📊</h1>
+        <p>EduNexus · Real-time statistika</p>
+      </div>
+      <button class="nbtn nbtn-g" onclick="doLogout()">Chiqish</button>
+    </div>
+    <div class="adm-kpi" id="akpi"></div>
+    <div class="as">
+      <div class="as-hd">
+        <h2>Kurslar Boshqaruvi</h2>
+        <button class="add-btn" onclick="openFM()">+ Kurs Qo'shish</button>
+      </div>
+      <div class="tw"><table>
+        <thead><tr>
+          <th>Kurs</th><th>Kategoriya</th><th>Narx</th>
+          <th>Davom.</th><th>O'quvchi</th><th>Amal</th>
+        </tr></thead>
+        <tbody id="at"></tbody>
+      </table></div>
+    </div>
+    <div class="as">
+      <div class="as-hd"><h2>So'nggi Yozilishlar</h2></div>
+      <div class="tw"><table>
+        <thead><tr><th>Ism</th><th>Telefon</th><th>Kurs</th><th>Vaqt</th></tr></thead>
+        <tbody id="st"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════ -->
+<!-- Course detail -->
+<div id="mol" onclick="if(event.target===this)cMol()">
+  <div class="mol-box">
+    <div class="mol-top" id="mt"></div>
+    <button class="mol-x" onclick="cMol()">✕</button>
+    <div class="mol-body">
+      <div id="mb-badge"></div>
+      <h2 class="mol-title" id="mb-t"></h2>
+      <p  class="mol-desc"  id="mb-d"></p>
+      <div class="mol-kpi"  id="mb-k"></div>
+      <p class="cur-head">KURS TARKIBI</p>
+      <ul class="cur-list"  id="mb-c"></ul>
+      <button class="mol-enr" id="mb-e">Kursga Yozilish — Bepul Konsultatsiya</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit form -->
+<div id="fm" onclick="if(event.target===this)cFM()">
+  <div class="fm-card">
+    <h2 id="fm-t">Yangi Kurs</h2>
+    <input type="hidden" id="eid"/>
+    <div class="fg"><label class="fl">Kurs nomi *</label>
+      <input class="fi" id="fn" placeholder="Masalan: Microsoft Word"/></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Kategoriya</label>
+        <select class="fi" id="fc-cat">
+          <option value="savod">💻 Savodxonlik</option>
+          <option value="prog">⌨️ Dasturlash</option>
+          <option value="design">🎨 Dizayn</option>
+        </select></div>
+      <div class="fg"><label class="fl">Daraja</label>
+        <select class="fi" id="flv">
+          <option value="1">Boshlang'ich</option>
+          <option value="2">O'rta</option>
+          <option value="3">Ilg'or</option>
+        </select></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Narx</label>
+        <input class="fi" id="fpr" placeholder="Bepul yoki 299,000"/></div>
+      <div class="fg"><label class="fl">Davomiylik</label>
+        <input class="fi" id="fdu" placeholder="4 hafta"/></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Emoji</label>
+        <input class="fi" id="fem" placeholder="📝"/></div>
+      <div class="fg"><label class="fl">Darslar soni</label>
+        <input class="fi" id="fls" type="number" placeholder="20"/></div>
+    </div>
+    <div class="fg"><label class="fl">Tavsif *</label>
+      <textarea class="fi" id="fde" placeholder="Kurs haqida..."></textarea></div>
+    <div class="fa">
+      <button class="fa-cancel" onclick="cFM()">Bekor</button>
+      <button class="fa-save" onclick="saveCrs()">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<!-- Enroll -->
+<div id="em" onclick="if(event.target===this)cEM()">
+  <div class="em-card">
+    <button class="mol-x" onclick="cEM()" style="position:absolute;top:1rem;right:1rem">✕</button>
+    <h2>Kursga Yozilish 🎓</h2>
+    <p id="em-cn">Ma'lumotlaringizni kiriting — ustoz 24 soat ichida aloqaga chiqadi.</p>
+    <div class="fg"><label class="fl">Ism Familiya *</label>
+      <input class="fi" id="en-nm" placeholder="Alisher Karimov"/></div>
+    <div class="fg"><label class="fl">Telefon *</label>
+      <input class="fi" id="en-ph" type="tel" placeholder="+998 90 123 45 67"/></div>
+    <div class="fg"><label class="fl">Kurs</label>
+      <select class="fi" id="en-cs"></select></div>
+    <button class="lbtn" style="margin-top:.5rem" onclick="subEM()">Yozilish →</button>
+  </div>
+</div>
+
+<div id="toast"><span id="ti">✅</span><span id="tm"></span></div>
+
+<!-- ── SCRIPTS ─────────────────────────────── -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════ */
+const DEFS = [
+  {id:'c1',cat:'savod',em:'📝',th:'th-word',w:4,
+   title:'Microsoft Word',price:'Bepul',dur:'3 hafta',les:24,stu:430,lv:1,feat:true,
+   desc:'Hujjat yaratishdan professional maketlashgacha. Jadvallar, rasmlar, shablonlar.',
+   full:'Microsoft Word — dunyo\'da eng ko\'p ishlatiladigan matn muharriri. Kursda noldan professional hujjatlar yaratishni o\'rganasiz.',
+   cur:['Word interfeysi va asosiy sozlamalar','Matn kiritish, tahrirlash va formatlash','Shrift, rang va paragraf sozlamalari','Jadvallar yaratish va boshqarish','Rasm, shakl va SmartArt qo\'shish','Sahifa formatlash va chegaralar','Mundarija va havolalar','Saqlash, chop etish va PDF eksport']},
+  {id:'c2',cat:'savod',em:'📊',th:'th-excel',w:4,pop:true,
+   title:'Microsoft Excel',price:'299 000 so\'m',dur:'4 hafta',les:32,stu:380,lv:2,
+   desc:'Jadvallar, formulalar, grafiklar va ma\'lumot tahlili. Ish uchun zarur Excel.',
+   full:'Excel — raqamlar va tahlil uchun eng kuchli vosita. Formulalar, funksiyalar, diagrammalar va hisobotlar.',
+   cur:['Excel interfeysi va tushunchalar','Hujayra, qator va ustun','SUM, AVERAGE, MAX formulalari','IF, VLOOKUP, INDEX/MATCH','Shartli formatlash','Diagramma va grafiklar','Ma\'lumot saralash va filtrlash','Pivot Table va hisobotlar']},
+  {id:'c3',cat:'savod',em:'🖥️',th:'th-ppt',w:4,
+   title:'PowerPoint — Taqdimotlar',price:'249 000 so\'m',dur:'2 hafta',les:16,stu:320,lv:1,
+   desc:'Chiroyli va ta\'sirli taqdimotlar. Animatsiyalar, o\'tishlar, professional dizayn.',
+   full:'PowerPoint bilan g\'oyalaringizni vizual tarzda ifoda eting. Animatsiya va professional dizayn asoslari.',
+   cur:['Interfeys va yangi taqdimot','Slayd maketi va shablonlar','Matn, rasm va ikonalar','Forma va SmartArt','Animatsiyalar — kirish, chiqish','Slaydlar orasidagi o\'tishlar','Video va audio qo\'shish','Namoyish va eksport']},
+  {id:'c4',cat:'savod',em:'🌐',th:'th-net',w:6,feat:true,
+   title:'Internet va Brauzer Asoslari',price:'Bepul',dur:'1 hafta',les:10,stu:650,lv:1,
+   desc:'Internet qanday ishlaydi? Xavfsiz qidirish, brauzer va onlayn xizmatlar.',
+   full:'Zamonaviy dunyoda internet bilimisiz bo\'lmaydi. Xavfsiz harakat, ma\'lumot qidirish va turli xizmatlar.',
+   cur:['Internet nima va qanday ishlaydi','Brauzerni o\'rnatish (Chrome, Firefox)','Samarali qidiruv (Google)','Xavfsiz internet: parollar va fishing','Fayllarni yuklab olish va yuklash','Onlayn to\'lovlar va xavfsizlik','VPN va maxfiylik','Foydali onlayn xizmatlar']},
+  {id:'c5',cat:'savod',em:'📧',th:'th-gmail',w:3,
+   title:'Gmail va Google Xizmatlar',price:'Bepul',dur:'1 hafta',les:8,stu:540,lv:1,
+   desc:'Gmail, Drive, Docs va Meet — ish va kundalik hayot uchun bepul vositalar.',
+   full:'Google xizmatlaridan professional foydalanish — Gmail, Drive, Docs, Sheets, Meet va Calendar.',
+   cur:['Gmail hisob va interfeys','Xat yozish va qabul qilish','Papkalar, teglar va qidirish','Google Drive','Google Docs va Sheets','Google Meet','Google Calendar','Hisob xavfsizligi']},
+  {id:'c6',cat:'savod',em:'📱',th:'th-tg',w:3,pop:true,
+   title:'Telegram Professional',price:'Bepul',dur:'1 hafta',les:8,stu:820,lv:1,
+   desc:'Telegram kanallar, guruhlar, botlar va biznes uchun Telegram imkoniyatlari.',
+   full:'Telegram shunchaki messenjer emas — bu kuchli kommunikatsiya platformasi. Kanal, guruh, bot va xavfsizlik.',
+   cur:['Telegram o\'rnatish va hisob','Xabar, rasm, fayl yuborish','Guruh va kanal yaratish','Guruh moderatsiyasi','Botlardan foydalanish','Telegram Premium','Xavfsizlik sozlamalari','Biznes uchun Telegram']},
+
+  // DASTURLASH
+  {id:'c7',cat:'prog',em:'🌐',th:'th-html',w:6,feat:true,
+   title:'HTML & CSS — Veb Asoslari',price:'399 000 so\'m',dur:'5 hafta',les:40,stu:290,lv:1,
+   desc:'Veb dasturlash asosi. Semantik HTML5, zamonaviy CSS, Flexbox, Grid va responsive dizayn.',
+   full:'HTML va CSS — har qanday veb-saytning asosi. Flexbox, CSS Grid, animatsiyalar va responsive dizayn to\'liq.',
+   cur:['HTML nima? Asosiy teglar','Semantik HTML5 elementlari','CSS kiritish va selektor turlari','Box Model: margin, padding, border','Flexbox — moslashuvchan joylashuv','CSS Grid — 2D layoutlar','Responsive dizayn va media queries','CSS animatsiyalar va transitions','CSS o\'zgaruvchilar','Real loyiha: Portfolio']},
+  {id:'c8',cat:'prog',em:'⚡',th:'th-js',w:4,pop:true,
+   title:'JavaScript — Interaktiv Veb',price:'499 000 so\'m',dur:'8 hafta',les:64,stu:220,lv:2,
+   desc:'Modern JS ES6+, DOM manipulyatsiya, asynchronous dasturlash va API integratsiyasi.',
+   full:'JavaScript — dunyo eng mashhur tili. Zamonaviy JS, Promises, async/await va real loyihalar.',
+   cur:['JS asoslari: o\'zgaruvchilar, turlari','Funksiyalar, arrow functions, scope','Array va Object metodlari','DOM: elementlar va tahrirlash','Events va event handling','ES6+: destructuring, spread, modules','Promises va async/await','Fetch API va AJAX','LocalStorage','Real loyiha: Todo + Weather App']},
+  {id:'c9',cat:'prog',em:'⚛️',th:'th-react',w:8,feat:true,
+   title:'React — Zamonaviy Frontend Freymvork',price:'699 000 so\'m',dur:'10 hafta',les:80,stu:160,lv:3,
+   desc:'React hooks, komponent arxitekturasi, state management va real loyihalar yaratish.',
+   full:'React — Meta tomonidan yaratilgan eng mashhur JavaScript kutubxonasi. Hooks, Context API, React Router.',
+   cur:['React nima? JSX va Virtual DOM','Funksional komponentlar va props','useState va useEffect','Event handling va forms','useRef, useCallback, useMemo','Context API — global state','React Router — ko\'p sahifali app','API bilan ishlash: axios','Custom Hooks','Real loyiha: E-commerce']},
+  {id:'c10',cat:'prog',em:'🐍',th:'th-py',w:4,
+   title:'Python Dasturlash',price:'449 000 so\'m',dur:'8 hafta',les:60,stu:340,lv:1,
+   desc:'Python noldan o\'rganish. Sintaksis, OOP, fayl ishlash va kichik loyihalar.',
+   full:'Python — o\'rganish uchun eng qulay va kuchli til. AI, ma\'lumotlar tahlili va veb-dasturlash uchun.',
+   cur:['Python o\'rnatish va muhit','O\'zgaruvchilar, ma\'lumot turlari','Shartli operatorlar: if/elif/else','Tsikllar: for va while','Funksiyalar','Ro\'yxat, lug\'at, to\'plam','Fayl o\'qish va yozish','OOP asoslari','Modullar va paketlar','Real loyiha: Kalkulyator']},
+  {id:'c11',cat:'prog',em:'🤖',th:'th-bot',w:8,feat:true,pop:true,
+   title:'Telegram Bot Yaratish — Python + Aiogram',price:'549 000 so\'m',dur:'6 hafta',les:48,stu:280,lv:2,
+   desc:'Python va Aiogram 3.x yordamida professional Telegram botlar, to\'lov tizimi va ma\'lumotlar bazasi.',
+   full:'Telegram botlar — biznes avtomatizatsiyasining kuchli vositasi. Python + Aiogram 3.x, ma\'lumotlar bazasi, to\'lov.',
+   cur:['Telegram Bot API va BotFather','Aiogram 3.x o\'rnatish','Asosiy xabarlar va buyruqlar','Reply va Inline tugmalar','Callback query va navigation','FSM — Finite State Machine','SQLite/PostgreSQL bilan ishlash','Admin panel yaratish','To\'lov: Click va Payme','Deploy: VPS serverga joylash']},
+  {id:'c12',cat:'prog',em:'🔧',th:'th-git',w:4,
+   title:'Git & GitHub',price:'199 000 so\'m',dur:'2 hafta',les:16,stu:190,lv:2,
+   desc:'Har bir dasturchi bilishi shart. Commit, branch, merge va GitHub workflow.',
+   full:'Git — versiya nazorat tizimi. GitHub, pull request va jamoa bilan ishlash usullari.',
+   cur:['Git nima va nima uchun?','O\'rnatish va sozlash','Repository yaratish','add, commit, status, log','Branch yaratish va o\'tish','Merge va rebase','GitHub: push, pull','Pull Request va Code Review']},
+  {id:'c13',cat:'prog',em:'🎨',th:'th-css',w:4,
+   title:'CSS Advanced & Animatsiyalar',price:'349 000 so\'m',dur:'4 hafta',les:32,stu:145,lv:3,
+   desc:'Professional CSS animatsiyalar, 3D transformatsiyalar va scroll-driven effektlar.',
+   full:'CSS faqat stil emas — bu san\'at. Keyframes, clip-path, SVG animatsiyalar va scroll-driven effektlar.',
+   cur:['CSS transitions chuqur','Keyframe animatsiyalar','2D va 3D transformatsiyalar','CSS variables','Clip-path va masking','Scroll-driven animatsiyalar','CSS Filter','SVG animatsiyalar']},
+
+  // DIZAYN
+  {id:'c14',cat:'design',em:'🎨',th:'th-canva',w:12,feat:true,
+   title:'Canva — Grafik Dizayn: Noldan Professionallikkacha',price:'199 000 so\'m',dur:'2 hafta',les:14,stu:510,lv:1,
+   desc:'Canva yordamida professional post, banner, logo va taqdimot yarating. Programmasiz professional dizayn!',
+   full:'Canva — dasturlash bilmasdan professional dizayn qilish imkonini beruvchi onlayn platforma.',
+   cur:['Canva hisob va interfeys','Shablonlar va o\'lchamlar','Matn va tipografiya','Ranglar nazariyasi va palitra','Rasm, ikonalar va elementlar','Social media postlar: Instagram, Telegram','Banner va flyer yaratish','Logotip dizayni','Animatsiyali dizaynlar','Fayl eksport: PNG, PDF, MP4']},
+];
+
+let courses  = JSON.parse(localStorage.getItem('edu_c') || 'null') || [...DEFS];
+let students = JSON.parse(localStorage.getItem('edu_s') || '[]');
+let editId   = null;
+
+const save = () => {
+  localStorage.setItem('edu_c', JSON.stringify(courses));
+  localStorage.setItem('edu_s', JSON.stringify(students));
+};
+
+/* ═══════════════════════════════════════════
+   WEBGL
+═══════════════════════════════════════════ */
+const VERT=`
+  vec3 m289(vec3 x){return x-floor(x*(1./289.))*289.;}
+  vec4 m289(vec4 x){return x-floor(x*(1./289.))*289.;}
+  vec4 perm(vec4 x){return m289(((x*34.)+1.)*x);}
+  vec4 tInv(vec4 r){return 1.79284291400159-.85373472095314*r;}
+  float sn(vec3 v){
+    const vec2 C=vec2(1./6.,1./3.);const vec4 D=vec4(0.,.5,1.,2.);
+    vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);
+    vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.-g;
+    vec3 i1=min(g.xyz,l.zxy);vec3 i2=max(g.xyz,l.zxy);
+    vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+C.yyy;vec3 x3=x0-D.yyy;
+    i=m289(i);
+    vec4 p=perm(perm(perm(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));
+    vec3 ns=0.142857142857*D.wyz-D.xzx;
+    vec4 j=p-49.*floor(p*ns.z*ns.z);
+    vec4 x_=floor(j*ns.z);vec4 y_=floor(j-7.*x_);
+    vec4 X=x_*ns.x+ns.yyyy;vec4 Y=y_*ns.x+ns.yyyy;
+    vec4 h=1.-abs(X)-abs(Y);
+    vec4 b0=vec4(X.xy,Y.xy);vec4 b1=vec4(X.zw,Y.zw);
+    vec4 s0=floor(b0)*2.+1.;vec4 s1=floor(b1)*2.+1.;
+    vec4 sh=-step(h,vec4(0.));
+    vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+    vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=vec3(a1.zw,h.w);
+    vec4 norm=tInv(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+    p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
+    vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);
+    m=m*m;return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+  }
+  uniform float ut;uniform vec2 um;
+  varying vec3 vN;varying float vS;
+  void main(){
+    float n=sn(vec3(position*.9+ut*.2+um.x*.4))+sn(vec3(position*2.+ut*.15+um.y*.3))*.5;
+    vS=n;vN=normal;
+    vec3 np=position+normal*n*.28;
+    gl_Position=projectionMatrix*modelViewMatrix*vec4(np,1.);
+  }`;
+const FRAG=`
+  vec2 m2(vec2 x){return x-floor(x*(1./289.))*289.;}
+  vec3 m3(vec3 x){return x-floor(x*(1./289.))*289.;}
+  vec3 pm(vec3 x){return m3(((x*34.)+1.)*x);}
+  float sn2(vec2 v){
+    const vec4 C=vec4(.211324865,.366025403,-.577350269,.024390243);
+    vec2 i=floor(v+dot(v,C.yy));vec2 x0=v-i+dot(i,C.xx);
+    vec2 i1=(x0.x>x0.y)?vec2(1.,0.):vec2(0.,1.);
+    vec4 x12=x0.xyxy+C.xxzz;x12.xy-=i1;
+    i=m2(i);
+    vec3 p=pm(pm(i.y+vec3(0.,i1.y,1.))+i.x+vec3(0.,i1.x,1.));
+    vec3 m=max(.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.);
+    m=m*m;m=m*m;vec3 x=2.*fract(p*.024390243)-1.;vec3 h=abs(x)-.5;
+    vec3 ox=floor(x+.5);vec3 a0=x-ox;
+    m*=1.79284-.85373*(a0*a0+h*h);
+    vec3 g;g.x=a0.x*x0.x+h.x*x0.y;g.yz=a0.yz*x12.xz+h.yz*x12.yw;
+    return 130.*dot(m,g);
+  }
+  vec3 pal(float t,vec3 a,vec3 b,vec3 c,vec3 d){return a+b*cos(6.28318*(c*t+d));}
+  uniform float ut;uniform vec2 um;
+  varying vec3 vN;varying float vS;
+  void main(){
+    float t=ut*.28;
+    float ct=fract((vS*.5+.5+sn2(vN.xy*2.+t*.15)*.18)*.85+t*.1);
+    vec3 col=pal(ct,vec3(.04,.01,.16),vec3(.48,.35,.6),vec3(.8,.65,.85),vec3(.2,.4,.65));
+    float b=sn2(vN.xy*3.+vec2(t*.25,-t*.18));
+    col=mix(col,mix(vec3(.35,.18,.95),vec3(.0,.8,1.),b+.5),.32+b*.18);
+    vec3 vd=normalize(vec3(um*.4,1.));
+    float fr=pow(1.-abs(dot(normalize(vN),vd)),3.);
+    col+=mix(vec3(.1,.55,1.),vec3(.75,.15,.9),.5)*fr*.55;
+    float sp=pow(max(dot(normalize(vN),normalize(vec3(um.x*1.5,um.y*1.5+.8,2.5))),0.),20.);
+    col+=vec3(.9,.95,1.)*sp*.45;
+    col=1.-exp(-col*1.5);col=pow(col,vec3(.88));
+    gl_FragColor=vec4(col,1.);
+  }`;
+
+const cvs=document.getElementById('webgl');
+const rdr=new THREE.WebGLRenderer({canvas:cvs,antialias:true});
+rdr.setPixelRatio(Math.min(devicePixelRatio,2));
+rdr.setSize(innerWidth,innerHeight);
+rdr.setClearColor(0x0a0a12,1);
+const scn=new THREE.Scene();
+const cam=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,.1,100);
+cam.position.set(0,0,4.8);
+const uni={ut:{value:0},um:{value:new THREE.Vector2}};
+const mesh=new THREE.Mesh(
+  new THREE.IcosahedronGeometry(1.8,48),
+  new THREE.ShaderMaterial({vertexShader:VERT,fragmentShader:FRAG,uniforms:uni})
+);
+scn.add(mesh);
+const pn=1600,pp=new Float32Array(pn*3);
+for(let i=0;i<pn;i++){pp[i*3]=(Math.random()-.5)*22;pp[i*3+1]=(Math.random()-.5)*22;pp[i*3+2]=(Math.random()-.5)*22}
+const pg=new THREE.BufferGeometry();
+pg.setAttribute('position',new THREE.BufferAttribute(pp,3));
+const pts=new THREE.Points(pg,new THREE.PointsMaterial({color:0x4455ee,size:.02,transparent:true,opacity:.35,blending:THREE.AdditiveBlending,depthWrite:false}));
+scn.add(pts);
+window.addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();rdr.setSize(innerWidth,innerHeight)});
+const mraw={x:0,y:0},ml={x:0,y:0};
+window.addEventListener('mousemove',e=>{mraw.x=(e.clientX/innerWidth)*2-1;mraw.y=(e.clientY/innerHeight)*2-1});
+const clk=new THREE.Clock();
+(function loop(){requestAnimationFrame(loop);
+  const t=clk.getElapsedTime();uni.ut.value=t;
+  ml.x+=(mraw.x-ml.x)*.05;ml.y+=(mraw.y-ml.y)*.05;
+  uni.um.value.set(ml.x,-ml.y);
+  mesh.rotation.y+=.0014+ml.x*.0006;mesh.rotation.x+=.0006-ml.y*.0005;
+  pts.rotation.y+=.00018;cam.lookAt(0,0,0);rdr.render(scn,cam);
+})();
+
+/* ═══════════════════════════════════════════
+   VIEW
+═══════════════════════════════════════════ */
+const views=['home','courses','admin'];
+function gv(n){
+  views.forEach(v=>{
+    document.getElementById('view-'+v).classList.remove('active');
+    const el=document.getElementById('nl-'+v);if(el)el.classList.remove('on');
+  });
+  document.getElementById('view-'+n).classList.add('active');
+  const el=document.getElementById('nl-'+n);if(el)el.classList.add('on');
+  scrollTo(0,0);
+  if(n==='courses')renderCG('all');
+  if(n==='admin')initAdmin();
+}
+
+function fag(cat){gv('courses');fc(cat,null)}
+
+/* ═══════════════════════════════════════════
+   RENDER COURSE GRID (BENTO)
+═══════════════════════════════════════════ */
+let currentCat='all';
+function fc(cat,btn){
+  currentCat=cat;
+  document.querySelectorAll('.fpill').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  else{
+    document.querySelectorAll('.fpill').forEach(b=>{
+      if((cat==='all'&&b.classList.contains('fpill-all'))||
+         (cat==='savod'&&b.classList.contains('fpill-sav'))||
+         (cat==='prog'&&b.classList.contains('fpill-pro'))||
+         (cat==='design'&&b.classList.contains('fpill-des')))b.classList.add('on');
+    });
+  }
+  renderCG(cat);
+}
+
+function renderCG(cat){
+  const g=document.getElementById('cg');
+  const list=cat==='all'?courses:courses.filter(c=>c.cat===cat);
+  const catCls={savod:'cat-s',prog:'cat-p',design:'cat-d'};
+  const catNm ={savod:'💻 Savodxonlik',prog:'⌨️ Dasturlash',design:'🎨 Dizayn'};
+  const enrCls={savod:'enr-s',prog:'enr-p',design:'enr-d'};
+  const lvCls ={savod:'on-s',prog:'on-p',design:'on-d'};
+
+  g.innerHTML=list.map(c=>{
+    const span=Math.min(c.w||4,12);
+    const lvDots=[1,2,3].map(n=>`<div class="lb ${n<=c.lv?lvCls[c.cat]:''}"></div>`).join('');
+    const isWide=span>=8;
+    const isCompact=span<=3;
+    const isFull=span===12;
+
+    let thumbH=isWide?'th-h-xl':isFull?'th-h-xl':'th-h-md';
+    if(isCompact)thumbH='th-h-sm';
+
+    const feat=c.feat?`<span class="feat-badge">⭐ Tavsiya</span>`:'';
+    const pop =c.pop?`<span class="pop-badge">🔥 Mashhur</span>`:'';
+
+    if(isFull){
+      // Full width — horizontal layout
+      return `<div class="kk kk-w12 kk-side" data-cat="${c.cat}" onclick="openMol('${c.id}')">
+        ${feat}${pop}
+        <div class="kk-thumb ${c.th} th-h-xl" style="min-height:240px">
+          <div class="glow"></div><div class="em">${c.em}</div>
         </div>
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon">✦</div>
-            <h3 class="feature-title">Shader Engineering</h3>
-            <p class="feature-text">Custom GLSL shaders that breathe organic life into every surface — fluid simulations, volumetric light, real-time noise fields.</p>
+        <div class="kk-body" style="padding:2.5rem;justify-content:center">
+          <span class="kk-cat ${catCls[c.cat]}">${catNm[c.cat]}</span>
+          <h3 class="kk-title big">${c.title}</h3>
+          <p class="kk-desc">${c.desc}</p>
+          <div class="kk-meta">
+            <span class="km">⏱ ${c.dur}</span>
+            <span class="km">📖 ${c.les} dars</span>
+            <span class="km">👥 ${c.stu || 0} o'quvchi</span>
+            <span class="km"><div class="lvl-bars">${lvDots}</div> ${c.lv===1?"Boshlang'ich":c.lv===2?"O'rta":"Ilg'or"}</span>
           </div>
-          <div class="feature-card">
-            <div class="feature-icon">⬡</div>
-            <h3 class="feature-title">Generative Systems</h3>
-            <p class="feature-text">Procedurally generated visual systems that respond, evolve, and surprise — no two interactions identical.</p>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:1.2rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,.05)">
+            <div class="kk-price ${c.price==='Bepul'?'free':'paid'}">${c.price}</div>
+            <button class="enr-btn ${enrCls[c.cat]}" onclick="event.stopPropagation();openEM('${c.id}')">Kursga Yozilish →</button>
           </div>
-          <div class="feature-card">
-            <div class="feature-icon">◈</div>
-            <h3 class="feature-title">Motion Architecture</h3>
-            <p class="feature-text">Orchestrated scroll choreography, spring-physics micro-interactions, and cinematic transition design.</p>
+        </div>
+      </div>`;
+    }
+
+    if(isWide){
+      return `<div class="kk kk-w${span} kk-side" data-cat="${c.cat}" onclick="openMol('${c.id}')">
+        ${feat}${pop}
+        <div class="kk-thumb ${c.th} ${thumbH}" style="width:260px;flex-shrink:0">
+          <div class="glow"></div><div class="em">${c.em}</div>
+        </div>
+        <div class="kk-body">
+          <span class="kk-cat ${catCls[c.cat]}">${catNm[c.cat]}</span>
+          <h3 class="kk-title big">${c.title}</h3>
+          <p class="kk-desc">${c.desc}</p>
+          <div class="kk-meta">
+            <span class="km">⏱ ${c.dur}</span>
+            <span class="km">📖 ${c.les} dars</span>
+            <span class="km">👥 ${c.stu||0}</span>
+            <span class="km"><div class="lvl-bars">${lvDots}</div></span>
           </div>
-          <div class="feature-card">
-            <div class="feature-icon">⟡</div>
-            <h3 class="feature-title">Spatial UI</h3>
-            <p class="feature-text">Three-dimensional interface paradigms that create depth, hierarchy, and delight at every layer of the experience.</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">◎</div>
-            <h3 class="feature-title">AI-Driven Design</h3>
-            <p class="feature-text">Machine learning integrated at the design layer — personalized visual adaptation in real-time at runtime.</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">⊕</div>
-            <h3 class="feature-title">Performance Core</h3>
-            <p class="feature-text">Sub-50ms interactions, 60fps guaranteed, WASM compute pipelines where needed. Beauty never costs performance.</p>
-          </div>
+        </div>
+        <div class="kk-footer">
+          <div class="kk-price ${c.price==='Bepul'?'free':'paid'}">${c.price}</div>
+          <button class="enr-btn ${enrCls[c.cat]}" onclick="event.stopPropagation();openEM('${c.id}')">Yozilish →</button>
+        </div>
+      </div>`;
+    }
+
+    return `<div class="kk kk-w${span}" data-cat="${c.cat}" onclick="openMol('${c.id}')">
+      ${feat}${pop}
+      <div class="kk-thumb ${c.th} ${thumbH}">
+        <div class="glow"></div><div class="em">${c.em}</div>
+      </div>
+      <div class="kk-body">
+        <span class="kk-cat ${catCls[c.cat]}">${catNm[c.cat]}</span>
+        <h3 class="kk-title">${c.title}</h3>
+        <p class="kk-desc">${c.desc}</p>
+        <div class="kk-meta">
+          <span class="km">⏱ ${c.dur}</span>
+          <span class="km">📖 ${c.les}</span>
+          <span class="km"><div class="lvl-bars">${lvDots}</div></span>
         </div>
       </div>
-    </section>
-
-    <!-- CTA -->
-    <section id="cta" class="cta-section">
-      <h2 class="cta-title">
-        <span class="reveal-line"><span class="inner">Start something</span></span>
-        <span class="reveal-line"><span class="inner"><span class="grad">extraordinary.</span></span></span>
-      </h2>
-      <p class="cta-sub">
-        Join the studios, brands, and visionaries who trust Nexus to shape the future of digital.
-      </p>
-      <div class="cta-actions">
-        <button class="btn-primary">Begin Your Journey</button>
-        <button class="btn-ghost">View Portfolio</button>
+      <div class="kk-footer">
+        <div class="kk-price ${c.price==='Bepul'?'free':'paid'}">${c.price}</div>
+        <button class="enr-btn ${enrCls[c.cat]}" onclick="event.stopPropagation();openEM('${c.id}')">Yozilish</button>
       </div>
-    </section>
+    </div>`;
+  }).join('');
+}
 
-  </div><!-- /scroll-content -->
+/* ═══════════════════════════════════════════
+   COURSE MODAL
+═══════════════════════════════════════════ */
+function openMol(id){
+  const c=courses.find(x=>x.id===id);if(!c)return;
+  const catCls={savod:'cat-s',prog:'cat-p',design:'cat-d'};
+  const catNm={savod:'💻 Savodxonlik',prog:'⌨️ Dasturlash',design:'🎨 Dizayn'};
+  document.getElementById('mt').className=`mol-top ${c.th}`;
+  document.getElementById('mt').textContent=c.em;
+  document.getElementById('mb-badge').innerHTML=`<span class="kk-cat ${catCls[c.cat]}">${catNm[c.cat]}</span>`;
+  document.getElementById('mb-t').textContent=c.title;
+  document.getElementById('mb-d').textContent=c.full||c.desc;
+  document.getElementById('mb-k').innerHTML=`
+    <div class="mkpi"><div class="mkpi-v">${c.dur}</div><div class="mkpi-l">Davomiylik</div></div>
+    <div class="mkpi"><div class="mkpi-v">${c.les}</div><div class="mkpi-l">Darslar</div></div>
+    <div class="mkpi"><div class="mkpi-v">${c.stu||0}</div><div class="mkpi-l">O'quvchilar</div></div>`;
+  document.getElementById('mb-c').innerHTML=(c.cur||[]).map(x=>`<li><span class="ck">✦</span>${x}</li>`).join('');
+  document.getElementById('mb-e').onclick=()=>{cMol();openEM(id)};
+  document.getElementById('mol').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function cMol(){document.getElementById('mol').classList.remove('open');document.body.style.overflow=''}
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="foot-logo">Nexus</div>
-    <span class="foot-copy">© 2025 Nexus Studio. All rights reserved.</span>
-    <ul class="foot-links">
-      <li><a href="#">Privacy</a></li>
-      <li><a href="#">Terms</a></li>
-      <li><a href="#">Contact</a></li>
-    </ul>
-  </footer>
+/* ═══════════════════════════════════════════
+   ENROLL MODAL
+═══════════════════════════════════════════ */
+let emCid=null;
+function openEM(id){
+  emCid=id;
+  const c=courses.find(x=>x.id===id);
+  document.getElementById('em-cn').textContent=c?`Kurs: ${c.title}`:'Kursni quyida tanlang';
+  const sel=document.getElementById('en-cs');
+  sel.innerHTML=courses.map(x=>`<option value="${x.id}"${x.id===id?' selected':''}>${x.em} ${x.title}</option>`).join('');
+  document.getElementById('en-nm').value='';
+  document.getElementById('en-ph').value='';
+  document.getElementById('em').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function cEM(){document.getElementById('em').classList.remove('open');document.body.style.overflow=''}
+function subEM(){
+  const nm=document.getElementById('en-nm').value.trim();
+  const ph=document.getElementById('en-ph').value.trim();
+  const cid=document.getElementById('en-cs').value;
+  if(!nm||!ph){toast('Ism va telefon majburiy!','⚠️');return}
+  const c=courses.find(x=>x.id===cid);
+  students.push({id:Date.now()+'',name:nm,phone:ph,courseId:cid,
+    courseName:c?c.title:cid,date:new Date().toLocaleString('uz-UZ')});
+  if(c)c.stu=(c.stu||0)+1;
+  save();cEM();
+  toast(`${nm}, yozilish muvaffaqiyatli! 24 soat ichida aloqa.`,'🎓');
+}
 
-  <!-- ── SCRIPTS ────────────────────────────────────────────────── -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+/* ═══════════════════════════════════════════
+   ADMIN
+═══════════════════════════════════════════ */
+let logged=sessionStorage.getItem('edu_adm')==='1';
+function initAdmin(){
+  if(logged){showDash()}
+  else{document.getElementById('adm-login').style.display='flex';document.getElementById('adm-dash').style.display='none'}
+}
+function doLogin(){
+  const u=document.getElementById('au').value,p=document.getElementById('ap').value;
+  if(u==='admin'&&p==='admin123'){logged=true;sessionStorage.setItem('edu_adm','1');showDash()}
+  else document.getElementById('lerr').style.display='block';
+}
+function doLogout(){
+  logged=false;sessionStorage.removeItem('edu_adm');
+  document.getElementById('adm-login').style.display='flex';
+  document.getElementById('adm-dash').style.display='none';
+  document.getElementById('au').value='';document.getElementById('ap').value='';
+}
+function showDash(){
+  document.getElementById('adm-login').style.display='none';
+  document.getElementById('adm-dash').style.display='block';
+  renderKPI();renderAT();renderST();
+}
+function renderKPI(){
+  const rev=students.reduce((s,st)=>{
+    const c=courses.find(x=>x.id===st.courseId);
+    if(!c||c.price==='Bepul')return s;
+    return s+parseInt(c.price.replace(/\D/g,''))||0;
+  },0);
+  const sc={savod:0,prog:0,design:0};courses.forEach(c=>{if(sc[c.cat]!==undefined)sc[c.cat]++});
+  document.getElementById('akpi').innerHTML=`
+    <div class="ak"><div class="ak-ico">📚</div><div class="ak-v">${courses.length}</div><div class="ak-l">Kurslar</div></div>
+    <div class="ak"><div class="ak-ico">👩‍🎓</div><div class="ak-v">${students.length}</div><div class="ak-l">Yozilishlar</div></div>
+    <div class="ak"><div class="ak-ico">💻</div><div class="ak-v">${sc.savod}</div><div class="ak-l">Savodxonlik</div></div>
+    <div class="ak"><div class="ak-ico">⌨️</div><div class="ak-v">${sc.prog}</div><div class="ak-l">Dasturlash</div></div>
+    <div class="ak"><div class="ak-ico">🎨</div><div class="ak-v">${sc.design}</div><div class="ak-l">Dizayn</div></div>
+    <div class="ak"><div class="ak-ico">💰</div><div class="ak-v">${rev.toLocaleString()}</div><div class="ak-l">So'm</div></div>`;
+}
+const catLb={savod:'💻 Savodxonlik',prog:'⌨️ Dasturlash',design:'🎨 Dizayn'};
+const catCl={savod:'tdb-s',prog:'tdb-p',design:'tdb-d'};
+function renderAT(){
+  document.getElementById('at').innerHTML=courses.map(c=>`
+    <tr>
+      <td><strong>${c.em} ${c.title}</strong></td>
+      <td><span class="td-b ${catCl[c.cat]}">${catLb[c.cat]}</span></td>
+      <td>${c.price}</td><td>${c.dur}</td><td>${c.stu||0}</td>
+      <td class="td-act">
+        <button onclick="openFM('${c.id}')">Tahrirlash</button>
+        <button class="del" onclick="delC('${c.id}')">O'chirish</button>
+      </td>
+    </tr>`).join('');
+}
+function renderST(){
+  const list=[...students].reverse().slice(0,15);
+  document.getElementById('st').innerHTML=list.length
+    ?list.map(s=>`<tr><td><strong>${s.name}</strong></td><td>${s.phone}</td><td>${s.courseName}</td><td style="color:rgba(255,255,255,.3);font-size:.72rem">${s.date}</td></tr>`).join('')
+    :'<tr><td colspan="4" style="text-align:center;padding:2rem;color:rgba(255,255,255,.2)">Hali yozilishlar yo\'q</td></tr>';
+}
 
-  <script>
-  /* ================================================================
-     NEXUS — Master WebGL + GSAP Experience
-  ================================================================ */
-  'use strict';
-
-  gsap.registerPlugin(ScrollTrigger);
-
-  /* ── 1. SHADER SOURCE ─────────────────────────────────────────── */
-
-  const VERT_SHADER = /* glsl */`
-    // Simplex 3D noise implementation
-    vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-    vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-    vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
-    vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
-
-    float snoise(vec3 v) {
-      const vec2 C = vec2(1.0/6.0, 1.0/3.0);
-      const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
-      vec3 i  = floor(v + dot(v, C.yyy));
-      vec3 x0 = v - i + dot(i, C.xxx);
-      vec3 g  = step(x0.yzx, x0.xyz);
-      vec3 l  = 1.0 - g;
-      vec3 i1 = min(g.xyz, l.zxy);
-      vec3 i2 = max(g.xyz, l.zxy);
-      vec3 x1 = x0 - i1 + C.xxx;
-      vec3 x2 = x0 - i2 + C.yyy;
-      vec3 x3 = x0 - D.yyy;
-      i = mod289(i);
-      vec4 p = permute(permute(permute(
-        i.z + vec4(0.0, i1.z, i2.z, 1.0))
-        + i.y + vec4(0.0, i1.y, i2.y, 1.0))
-        + i.x + vec4(0.0, i1.x, i2.x, 1.0));
-      float n_ = 0.142857142857;
-      vec3 ns = n_ * D.wyz - D.xzx;
-      vec4 j  = p - 49.0 * floor(p * ns.z * ns.z);
-      vec4 x_ = floor(j * ns.z);
-      vec4 y_ = floor(j - 7.0 * x_);
-      vec4 x  = x_ *ns.x + ns.yyyy;
-      vec4 y  = y_ *ns.x + ns.yyyy;
-      vec4 h  = 1.0 - abs(x) - abs(y);
-      vec4 b0 = vec4(x.xy, y.xy);
-      vec4 b1 = vec4(x.zw, y.zw);
-      vec4 s0 = floor(b0)*2.0 + 1.0;
-      vec4 s1 = floor(b1)*2.0 + 1.0;
-      vec4 sh = -step(h, vec4(0.0));
-      vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
-      vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
-      vec3 p0 = vec3(a0.xy, h.x);
-      vec3 p1 = vec3(a0.zw, h.y);
-      vec3 p2 = vec3(a1.xy, h.z);
-      vec3 p3 = vec3(a1.zw, h.w);
-      vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
-      p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
-      vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
-      m = m * m;
-      return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
-    }
-
-    uniform float u_time;
-    uniform float u_scroll;
-    uniform vec2  u_mouse;
-    uniform float u_morph;
-
-    varying vec2  vUv;
-    varying vec3  vNormal;
-    varying vec3  vPosition;
-    varying float vNoise;
-    varying float vDisplacement;
-
-    void main() {
-      vUv = uv;
-      vNormal = normal;
-
-      // Mouse influence
-      float mX = u_mouse.x * 0.6;
-      float mY = u_mouse.y * 0.6;
-
-      // Multi-octave noise for organic surface
-      float t = u_time * 0.28;
-      vec3 p = position;
-
-      float noise1 = snoise(vec3(p.x * 1.2 + t, p.y * 1.2 + t * 0.6, p.z * 1.2 + mX));
-      float noise2 = snoise(vec3(p.x * 2.4 - t * 0.4 + mY, p.y * 2.4 + t, p.z * 2.4)) * 0.5;
-      float noise3 = snoise(vec3(p.x * 4.8 + t * 0.2, p.y * 4.8 - t * 0.3, p.z * 4.8 + mX * 0.5)) * 0.25;
-
-      // Scroll-driven secondary morph
-      float scrollNoise = snoise(vec3(p.x * 0.9, p.y * 0.9 + u_scroll * 0.8, p.z * 0.9 + u_scroll * 0.4)) * u_scroll * 0.6;
-
-      float totalNoise = (noise1 + noise2 + noise3 + scrollNoise);
-      vNoise = totalNoise;
-
-      float displacement = totalNoise * (0.28 + u_morph * 0.18);
-      vDisplacement = displacement;
-
-      vec3 newPos = position + normal * displacement;
-      vPosition = newPos;
-
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
-    }
-  `;
-
-  const FRAG_SHADER = /* glsl */`
-    // Simplex 2D helper
-    vec3 mod289v(vec3 x) { return x - floor(x * (1.0/289.0)) * 289.0; }
-    vec2 mod289v(vec2 x) { return x - floor(x * (1.0/289.0)) * 289.0; }
-    vec3 permutev(vec3 x) { return mod289v(((x*34.0)+1.0)*x); }
-
-    float snoise2(vec2 v) {
-      const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
-      vec2 i = floor(v + dot(v, C.yy));
-      vec2 x0 = v - i + dot(i, C.xx);
-      vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-      vec4 x12 = x0.xyxy + C.xxzz;
-      x12.xy -= i1;
-      i = mod289v(i);
-      vec3 p = permutev(permutev(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
-      vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-      m = m*m; m = m*m;
-      vec3 x = 2.0 * fract(p * C.www) - 1.0;
-      vec3 h = abs(x) - 0.5;
-      vec3 ox = floor(x + 0.5);
-      vec3 a0 = x - ox;
-      m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
-      vec3 g;
-      g.x  = a0.x * x0.x   + h.x * x0.y;
-      g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-      return 130.0 * dot(m, g);
-    }
-
-    uniform float u_time;
-    uniform float u_scroll;
-    uniform vec2  u_mouse;
-    uniform vec2  u_resolution;
-    uniform float u_morph;
-
-    varying vec2  vUv;
-    varying vec3  vNormal;
-    varying vec3  vPosition;
-    varying float vNoise;
-    varying float vDisplacement;
-
-    // Color palette function
-    vec3 palette(float t, vec3 a, vec3 b, vec3 c, vec3 d) {
-      return a + b * cos(6.28318 * (c * t + d));
-    }
-
-    void main() {
-      float time = u_time * 0.35;
-
-      // === BASE COLOR GRADIENT ===
-      // Primary palette: deep indigo → electric cyan → violet
-      vec3 palA = vec3(0.05, 0.02, 0.18);
-      vec3 palB = vec3(0.45, 0.38, 0.55);
-      vec3 palC = vec3(0.85, 0.70, 0.80);
-      vec3 palD = vec3(0.18, 0.42, 0.68);
-
-      float colorT = vNoise * 0.5 + 0.5;
-      colorT += snoise2(vUv * 3.0 + time * 0.2) * 0.2;
-      colorT += u_scroll * 0.3;
-      colorT = fract(colorT * 0.8 + time * 0.12);
-
-      vec3 baseColor = palette(colorT, palA, palB, palC, palD);
-
-      // === SECONDARY LAYER: additive glow bands ===
-      float band1 = snoise2(vUv * 4.0 + vec2(time * 0.3, -time * 0.2));
-      float band2 = snoise2(vUv * 7.0 - vec2(time * 0.15, time * 0.4));
-      float glowBand = smoothstep(0.3, 0.7, band1 * 0.6 + band2 * 0.4);
-
-      vec3 glowColor1 = vec3(0.42, 0.24, 0.98); // violet
-      vec3 glowColor2 = vec3(0.0,  0.83, 1.0);  // cyan
-      vec3 glowMix = mix(glowColor1, glowColor2, glowBand + u_scroll * 0.5);
-
-      baseColor = mix(baseColor, glowMix, 0.35 + glowBand * 0.25);
-
-      // === CHROMATIC ABERRATION (UV-space) ===
-      float aberrStrength = 0.012 + abs(vDisplacement) * 0.03;
-      vec2 uvR = vUv + vec2( aberrStrength, 0.0);
-      vec2 uvB = vUv + vec2(-aberrStrength, 0.0);
-      float rChannel = snoise2(uvR * 5.0 + time * 0.25) * 0.5 + 0.5;
-      float bChannel = snoise2(uvB * 5.0 - time * 0.2) * 0.5 + 0.5;
-      baseColor.r = mix(baseColor.r, rChannel, 0.18);
-      baseColor.b = mix(baseColor.b, bChannel, 0.22);
-
-      // === FRESNEL-LIKE EDGE GLOW ===
-      vec3 viewDir = normalize(vec3(u_mouse * 0.5, 1.0));
-      float fresnel = pow(1.0 - abs(dot(normalize(vNormal), viewDir)), 2.8);
-      vec3 edgeColor = mix(vec3(0.1, 0.6, 1.0), vec3(0.7, 0.2, 1.0), u_scroll);
-      baseColor += edgeColor * fresnel * 0.55;
-
-      // === SPECULAR HIGHLIGHT ===
-      vec3 lightDir = normalize(vec3(u_mouse.x * 2.0, u_mouse.y * 2.0 + 1.0, 3.0));
-      float spec = pow(max(dot(normalize(vNormal), lightDir), 0.0), 24.0);
-      baseColor += vec3(0.9, 0.95, 1.0) * spec * 0.6;
-
-      // === VIGNETTE (subtle) ===
-      vec2 uv = vUv - 0.5;
-      float vig = 1.0 - dot(uv * 1.4, uv * 1.4);
-      vig = smoothstep(0.0, 0.7, vig);
-      baseColor *= 0.7 + vig * 0.3;
-
-      // === WIREFRAME-LIKE RIM ===
-      float rimWidth = 0.04;
-      float rim = 1.0;
-      if (vUv.x < rimWidth || vUv.x > 1.0 - rimWidth ||
-          vUv.y < rimWidth || vUv.y > 1.0 - rimWidth) {
-        rim = 1.15;
-      }
-      baseColor *= rim;
-
-      // Tone mapping: subtle HDR-like exposure
-      baseColor = 1.0 - exp(-baseColor * 1.6);
-      baseColor = pow(baseColor, vec3(0.88)); // gamma
-
-      gl_FragColor = vec4(baseColor, 1.0);
-    }
-  `;
-
-  /* ── 2. THREE.JS SETUP ────────────────────────────────────────── */
-
-  const canvas = document.getElementById('webgl');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x010108, 1);
-
-  const scene  = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
-  camera.position.set(0, 0, 4.5);
-
-  // Uniforms
-  const uniforms = {
-    u_time:       { value: 0 },
-    u_scroll:     { value: 0 },
-    u_mouse:      { value: new THREE.Vector2(0, 0) },
-    u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-    u_morph:      { value: 0 },
+/* Add/Edit form */
+function openFM(id){
+  editId=id||null;
+  const c=id?courses.find(x=>x.id===id):null;
+  document.getElementById('fm-t').textContent=c?'Kursni Tahrirlash':'Yangi Kurs Qo\'shish';
+  document.getElementById('fn').value=c?c.title:'';
+  document.getElementById('fc-cat').value=c?c.cat:'savod';
+  document.getElementById('flv').value=c?String(c.lv||1):'1';
+  document.getElementById('fpr').value=c?c.price:'';
+  document.getElementById('fdu').value=c?c.dur:'';
+  document.getElementById('fem').value=c?c.em:'';
+  document.getElementById('fls').value=c?String(c.les||20):'20';
+  document.getElementById('fde').value=c?c.desc:'';
+  document.getElementById('fm').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function cFM(){document.getElementById('fm').classList.remove('open');document.body.style.overflow=''}
+const THUMBS={savod:['th-word','th-excel','th-ppt','th-net','th-gmail','th-tg'],prog:['th-html','th-js','th-react','th-py','th-bot','th-git','th-css'],design:['th-canva']};
+function saveCrs(){
+  const nm=document.getElementById('fn').value.trim();
+  const de=document.getElementById('fde').value.trim();
+  if(!nm||!de){toast('Nom va tavsif majburiy!','⚠️');return}
+  const cat=document.getElementById('fc-cat').value;
+  const obj={
+    title:nm,cat,lv:parseInt(document.getElementById('flv').value),
+    price:document.getElementById('fpr').value.trim()||'Bepul',
+    dur:document.getElementById('fdu').value.trim()||'4 hafta',
+    em:document.getElementById('fem').value.trim()||'📚',
+    les:parseInt(document.getElementById('fls').value)||20,
+    desc:de,full:de,cur:[],
+    badge:catLb[cat].split(' ').slice(1).join(' ')
   };
+  if(editId){
+    const i=courses.findIndex(x=>x.id===editId);
+    if(i>-1)courses[i]={...courses[i],...obj};
+    toast('Kurs yangilandi!','✅');
+  } else {
+    const thArr=THUMBS[cat]||['th-html'];
+    obj.id='c'+Date.now();obj.stu=0;
+    obj.th=thArr[Math.floor(Math.random()*thArr.length)];
+    obj.w=4;
+    courses.push(obj);
+    toast('Yangi kurs qo\'shildi!','✅');
+  }
+  save();cFM();renderAT();renderKPI();
+}
+function delC(id){
+  if(!confirm('Haqiqatan ham o\'chirmoqchimisiz?'))return;
+  courses=courses.filter(c=>c.id!==id);save();renderAT();renderKPI();toast('O\'chirildi.','🗑️');
+}
 
-  // High-detail icosahedron for organic surface
-  const geo = new THREE.IcosahedronGeometry(1.65, 64);
-  const mat = new THREE.ShaderMaterial({
-    vertexShader:   VERT_SHADER,
-    fragmentShader: FRAG_SHADER,
-    uniforms,
-    side: THREE.FrontSide,
-    wireframe: false,
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+let tTimer;
+function toast(msg,icon='✅'){
+  document.getElementById('ti').textContent=icon;
+  document.getElementById('tm').textContent=msg;
+  const el=document.getElementById('toast');el.classList.add('on');
+  clearTimeout(tTimer);tTimer=setTimeout(()=>el.classList.remove('on'),4200);
+}
+
+/* ═══════════════════════════════════════════
+   PRELOADER + INTRO
+═══════════════════════════════════════════ */
+let pv=0;
+const pi=setInterval(()=>{
+  pv+=Math.random()*5+1.5;if(pv>=100){pv=100;clearInterval(pi)}
+  document.getElementById('pf').style.width=pv+'%';
+  document.getElementById('pp').textContent=Math.floor(pv)+'%';
+  if(pv===100)setTimeout(()=>{
+    gsap.to('#pre',{opacity:0,duration:1,ease:'power2.inOut',onComplete:()=>{
+      document.getElementById('pre').style.display='none';intro();
+    }});
+  },300);
+},38);
+
+function intro(){
+  gsap.to('#nav',{opacity:1,duration:.9,ease:'power2.out'});
+  gsap.to('.hero-tag',{opacity:1,y:0,duration:.7,ease:'power3.out',delay:.2});
+  gsap.to('.hero-h1 .ch',{opacity:1,y:0,stagger:.035,duration:.75,ease:'power4.out',delay:.38});
+  gsap.to('.hero-sub',{opacity:1,y:0,duration:.7,ease:'power3.out',delay:.82});
+  gsap.to('.hero-btns',{opacity:1,y:0,duration:.7,ease:'power3.out',delay:.95});
+  gsap.to('.hero-strip',{opacity:1,duration:.7,ease:'power3.out',delay:1.1});
+  gsap.to('.s-arrow',{opacity:1,duration:.7,delay:1.4});
+  gsap.from(mesh.scale,{x:0,y:0,z:0,duration:2,ease:'elastic.out(1,.65)'});
+  gsap.from(mesh.rotation,{y:Math.PI*2,duration:2.4,ease:'power4.out'});
+}
+
+/* ═══════════════════════════════════════════
+   CURSOR
+═══════════════════════════════════════════ */
+if(innerWidth>900){
+  const dot=document.getElementById('cDot'),ring=document.getElementById('cRing');
+  let cx=0,cy=0,rx=0,ry=0;
+  window.addEventListener('mousemove',e=>{cx=e.clientX;cy=e.clientY});
+  (function ac(){rx+=(cx-rx)*.12;ry+=(cy-ry)*.12;
+    dot.style.transform=`translate(${cx}px,${cy}px)`;
+    ring.style.transform=`translate(${rx}px,${ry}px)`;
+    requestAnimationFrame(ac);})();
+  document.addEventListener('mouseover',e=>{
+    if(e.target.closest('button,a,.kk,.cbc,.cat-card')){
+      gsap.to(ring,{scale:1.8,opacity:.7,duration:.3});
+    } else gsap.to(ring,{scale:1,opacity:1,duration:.3});
   });
+}
 
-  const mesh = new THREE.Mesh(geo, mat);
-  scene.add(mesh);
-
-  // Background particle field
-  const partCount = 1800;
-  const partPositions = new Float32Array(partCount * 3);
-  for (let i = 0; i < partCount; i++) {
-    partPositions[i * 3]     = (Math.random() - 0.5) * 22;
-    partPositions[i * 3 + 1] = (Math.random() - 0.5) * 22;
-    partPositions[i * 3 + 2] = (Math.random() - 0.5) * 22;
-  }
-  const partGeo = new THREE.BufferGeometry();
-  partGeo.setAttribute('position', new THREE.BufferAttribute(partPositions, 3));
-
-  const partMat = new THREE.PointsMaterial({
-    color: 0x5555ff,
-    size: 0.025,
-    transparent: true,
-    opacity: 0.5,
-    sizeAttenuation: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
-  });
-  const particles = new THREE.Points(partGeo, partMat);
-  scene.add(particles);
-
-  /* ── 3. MOUSE / INERTIA ───────────────────────────────────────── */
-
-  const mouse       = { x: 0, y: 0 };       // raw normalized
-  const mouseLerped = { x: 0, y: 0 };        // inertia-smoothed
-  const MOUSE_LERP  = 0.055;
-
-  window.addEventListener('mousemove', (e) => {
-    mouse.x = (e.clientX / window.innerWidth)  * 2 - 1;
-    mouse.y = (e.clientY / window.innerHeight) * 2 - 1;
-  });
-
-  /* ── 4. SCROLL STATE ──────────────────────────────────────────── */
-
-  let scrollProgress = 0;
-  let scrollTarget   = 0;
-  const SCROLL_LERP  = 0.08;
-
-  window.addEventListener('scroll', () => {
-    const maxScroll = document.body.scrollHeight - window.innerHeight;
-    scrollTarget = window.scrollY / maxScroll;
-  }, { passive: true });
-
-  /* ── 5. RESIZE ─────────────────────────────────────────────────── */
-
-  window.addEventListener('resize', () => {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    uniforms.u_resolution.value.set(w, h);
-  });
-
-  /* ── 6. PRELOADER ─────────────────────────────────────────────── */
-
-  let appReady = false;
-  const preBar     = document.getElementById('preBar');
-  const preCounter = document.getElementById('preCounter');
-  const preloader  = document.getElementById('preloader');
-
-  function runPreloader() {
-    let pct = 0;
-    const tick = setInterval(() => {
-      pct += Math.random() * 4.5 + 1.5;
-      if (pct >= 100) { pct = 100; clearInterval(tick); onPreloadComplete(); }
-      const rounded = Math.floor(pct);
-      preBar.style.width = pct + '%';
-      preCounter.textContent = rounded + '%';
-    }, 45);
-  }
-
-  function onPreloadComplete() {
-    setTimeout(() => {
-      gsap.to(preloader, {
-        opacity: 0,
-        duration: 1.2,
-        ease: 'power2.inOut',
-        onComplete: () => {
-          preloader.style.display = 'none';
-          appReady = true;
-          launchIntro();
-        }
-      });
-    }, 400);
-  }
-
-  /* ── 7. INTRO ANIMATION ───────────────────────────────────────── */
-
-  function launchIntro() {
-    const tl = gsap.timeline();
-
-    // Nav
-    tl.to('#nav', { opacity: 1, duration: 1.2, ease: 'power2.out' }, 0);
-
-    // Hero eyebrow
-    tl.to('.hero-eyebrow', {
-      opacity: 1, y: 0, duration: 0.9, ease: 'power3.out'
-    }, 0.3);
-
-    // Hero chars stagger
-    tl.to('.hero-title .char', {
-      opacity: 1,
-      y: 0,
-      stagger: 0.045,
-      duration: 0.85,
-      ease: 'power4.out',
-    }, 0.5);
-
-    // Hero sub + actions
-    tl.to('.hero-sub', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0.95);
-    tl.to('.hero-actions', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 1.1);
-    tl.to('.scroll-indicator', { opacity: 1, duration: 0.8 }, 1.4);
-
-    // Mesh intro — scale from 0
-    gsap.from(mesh.scale, { x: 0, y: 0, z: 0, duration: 2.5, ease: 'elastic.out(1, 0.6)' });
-    gsap.from(mesh.rotation, { y: Math.PI * 2, duration: 2.8, ease: 'power4.out' });
-
-    // Uniforms morph in
-    gsap.to(uniforms.u_morph, { value: 1, duration: 2.5, ease: 'power2.inOut' });
-  }
-
-  /* ── 8. SCROLL TRIGGERS ───────────────────────────────────────── */
-
-  function setupScrollAnimations() {
-    // About section
-    ScrollTrigger.create({
-      trigger: '#about',
-      start: 'top 75%',
-      once: true,
-      onEnter: () => {
-        gsap.to('.about-label', { opacity: 1, duration: 0.7, ease: 'power2.out' });
-
-        gsap.to('.about-heading .inner', {
-          opacity: 1, y: 0, stagger: 0.18, duration: 1, ease: 'power4.out', delay: 0.1
-        });
-
-        gsap.to('.about-body', { opacity: 1, duration: 1, ease: 'power2.out', delay: 0.4 });
-
-        gsap.to('.stat-card', {
-          opacity: 1, y: 0, stagger: 0.12, duration: 0.9, ease: 'power4.out', delay: 0.35
-        });
-      }
-    });
-
-    // Features section
-    ScrollTrigger.create({
-      trigger: '#features',
-      start: 'top 75%',
-      once: true,
-      onEnter: () => {
-        gsap.to('#features .section-label', { opacity: 1, duration: 0.7 });
-
-        gsap.to('#features .section-title .inner', {
-          opacity: 1, y: 0, stagger: 0.15, duration: 0.9, ease: 'power4.out', delay: 0.1
-        });
-
-        gsap.to('.feature-card', {
-          opacity: 1, y: 0, stagger: 0.1, duration: 0.85, ease: 'power4.out', delay: 0.3
-        });
-      }
-    });
-
-    // CTA section
-    ScrollTrigger.create({
-      trigger: '#cta',
-      start: 'top 75%',
-      once: true,
-      onEnter: () => {
-        gsap.to('#cta .reveal-line .inner', {
-          opacity: 1, y: 0, stagger: 0.2, duration: 1, ease: 'power4.out'
-        });
-        gsap.to('.cta-sub',     { opacity: 1, duration: 0.8, ease: 'power2.out', delay: 0.4 });
-        gsap.to('.cta-actions', { opacity: 1, duration: 0.8, ease: 'power2.out', delay: 0.6 });
-      }
-    });
-
-    // ── Camera scroll path ──
-    ScrollTrigger.create({
-      trigger: '#scroll-content',
-      start: 'top top',
-      end:   'bottom bottom',
-      scrub: 2.5,
-      onUpdate: (self) => {
-        const p = self.progress;
-
-        // Camera tunnels through / orbits around the mesh
-        gsap.to(camera.position, {
-          x: Math.sin(p * Math.PI * 2) * 2.5,
-          y: Math.cos(p * Math.PI)     * 1.5,
-          z: 4.5 - p * 3.0 + Math.sin(p * Math.PI * 3) * 0.8,
-          duration: 0.5, ease: 'none', overwrite: true
-        });
-
-        // Mesh rotation driven by scroll
-        gsap.to(mesh.rotation, {
-          x: p * Math.PI * 1.2,
-          y: p * Math.PI * 2.5,
-          duration: 0.5, ease: 'none', overwrite: true
-        });
-
-        // Particle rotation
-        gsap.to(particles.rotation, {
-          x: p * Math.PI * 0.5,
-          y: p * Math.PI * 1.5,
-          duration: 0.8, ease: 'none', overwrite: true
-        });
-
-        // Color morph via uniform
-        uniforms.u_scroll.value = p;
-      }
-    });
-  }
-
-  /* ── 9. MAGNETIC CARDS ────────────────────────────────────────── */
-
-  function setupMagneticCards() {
-    document.querySelectorAll('.feature-card, .stat-card').forEach(card => {
-      card.addEventListener('mousemove', (e) => {
-        const r = card.getBoundingClientRect();
-        const cx = r.left + r.width  / 2;
-        const cy = r.top  + r.height / 2;
-        const dx = (e.clientX - cx) / (r.width  / 2);
-        const dy = (e.clientY - cy) / (r.height / 2);
-        gsap.to(card, {
-          rotateX: -dy * 8,
-          rotateY:  dx * 8,
-          transformPerspective: 600,
-          ease: 'power2.out',
-          duration: 0.4,
-        });
-      });
-      card.addEventListener('mouseleave', () => {
-        gsap.to(card, { rotateX: 0, rotateY: 0, duration: 0.6, ease: 'elastic.out(1, 0.5)' });
-      });
-    });
-  }
-
-  /* ── 10. CUSTOM CURSOR ────────────────────────────────────────── */
-
-  function setupCursor() {
-    const dot  = document.getElementById('cursorDot');
-    const ring = document.getElementById('cursorRing');
-    let cx = 0, cy = 0, rx = 0, ry = 0;
-
-    window.addEventListener('mousemove', (e) => {
-      cx = e.clientX; cy = e.clientY;
-    });
-
-    function animCursor() {
-      rx += (cx - rx) * 0.12;
-      ry += (cy - ry) * 0.12;
-      dot.style.transform  = `translate(${cx}px,${cy}px)`;
-      ring.style.transform = `translate(${rx}px,${ry}px)`;
-      requestAnimationFrame(animCursor);
-    }
-    animCursor();
-
-    document.querySelectorAll('button, a, .feature-card, .stat-card').forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        gsap.to(ring, { scale: 1.8, opacity: 0.6, duration: 0.3 });
-      });
-      el.addEventListener('mouseleave', () => {
-        gsap.to(ring, { scale: 1, opacity: 1, duration: 0.3 });
-      });
-    });
-  }
-
-  /* ── 11. RENDER LOOP ──────────────────────────────────────────── */
-
-  const clock = new THREE.Clock();
-
-  function animate() {
-    requestAnimationFrame(animate);
-
-    const elapsed = clock.getElapsedTime();
-    uniforms.u_time.value = elapsed;
-
-    // Lerp mouse to uniform
-    mouseLerped.x += (mouse.x - mouseLerped.x) * MOUSE_LERP;
-    mouseLerped.y += (mouse.y - mouseLerped.y) * MOUSE_LERP;
-    uniforms.u_mouse.value.set(mouseLerped.x, -mouseLerped.y);
-
-    // Lerp scroll progress
-    scrollProgress += (scrollTarget - scrollProgress) * SCROLL_LERP;
-    uniforms.u_scroll.value = scrollProgress;
-
-    // Idle mesh rotation (subtle breathing)
-    if (!ScrollTrigger.isScrolling()) {
-      mesh.rotation.y += 0.0018 + mouseLerped.x * 0.001;
-      mesh.rotation.x += 0.0009 - mouseLerped.y * 0.0008;
-    }
-
-    // Particle slow drift
-    particles.rotation.y += 0.00025;
-    particles.rotation.x += 0.00012;
-
-    // Camera look at origin
-    camera.lookAt(0, 0, 0);
-
-    renderer.render(scene, camera);
-  }
-
-  /* ── 12. BOOT ─────────────────────────────────────────────────── */
-
-  runPreloader();
-  animate();
-
-  // Setup scroll and interactions after a brief tick
-  // (DOM is ready, but we still defer to next frame for perf)
-  requestAnimationFrame(() => {
-    setupScrollAnimations();
-    setupMagneticCards();
-    if (window.innerWidth > 768) setupCursor();
-  });
-
-  </script>
+/* Initial render */
+renderCG('all');
+</script>
 </body>
 </html>
