@@ -357,17 +357,22 @@
     display:none;align-items:center;justify-content:center;padding:1.5rem}
   #mol.open{display:flex}
   .mol-box{background:#0e0e22;border:1px solid rgba(255,255,255,.1);
-    border-radius:1.6rem;width:min(680px,100%);max-height:90vh;overflow-y:auto;
+    border-radius:1.6rem;width:min(720px,100%);max-height:92vh;overflow-y:auto;
     position:relative;animation:molin .4s var(--ease)}
   @keyframes molin{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
-  .mol-top{height:220px;display:flex;align-items:center;justify-content:center;
+  /* Video-first top section */
+  .mol-vid-top{width:100%;aspect-ratio:16/9;border-radius:1.6rem 1.6rem 0 0;
+    overflow:hidden;background:#000;display:none}
+  .mol-vid-top iframe{width:100%;height:100%;border:none;display:block}
+  /* Thumbnail fallback (emoji bg, shown only when no video) */
+  .mol-top{height:200px;display:flex;align-items:center;justify-content:center;
     font-size:5rem;border-radius:1.6rem 1.6rem 0 0;position:relative}
-  .mol-x{position:absolute;top:1rem;right:1rem;width:36px;height:36px;
-    background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);
+  .mol-x{position:absolute;top:1rem;right:1rem;z-index:10;width:36px;height:36px;
+    background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.15);
     border-radius:50%;cursor:pointer;color:#fff;font-size:1rem;
     display:flex;align-items:center;justify-content:center;transition:all .3s;backdrop-filter:blur(10px)}
   .mol-x:hover{background:rgba(255,255,255,.12)}
-  .mol-body{padding:2rem 2.5rem 2.5rem}
+  .mol-body{padding:1.8rem 2.2rem 2.5rem}
   .mol-title{font-family:'Space Grotesk',sans-serif;font-size:1.7rem;
     font-weight:800;margin:1rem 0 .5rem;letter-spacing:-.02em}
   .mol-desc{color:var(--muted);font-size:.87rem;line-height:1.8;margin-bottom:1.5rem}
@@ -766,19 +771,18 @@
   <!-- Course detail -->
   <div id="mol" onclick="if(event.target===this)cMol()">
     <div class="mol-box">
-      <div class="mol-top" id="mt"></div>
       <button class="mol-x" onclick="cMol()">✕</button>
+      <!-- VIDEO at TOP -->
+      <div id="mol-vid-top" class="mol-vid-top">
+        <iframe id="mol-video-fr" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+      </div>
+      <!-- Thumbnail fallback (shown when no video) -->
+      <div class="mol-top" id="mt"></div>
       <div class="mol-body">
         <div id="mb-badge"></div>
         <h2 class="mol-title" id="mb-t"></h2>
         <p  class="mol-desc"  id="mb-d"></p>
         <div class="mol-kpi"  id="mb-k"></div>
-        <div id="mb-vid" style="display:none">
-          <p class="mol-video-label">▶ KURS VIDEOSI</p>
-          <div class="mol-video" id="mol-video-wrap">
-            <iframe id="mol-video-fr" allowfullscreen allow="autoplay; encrypted-media"></iframe>
-          </div>
-        </div>
         <p class="cur-head">KURS TARKIBI</p>
         <ul class="cur-list"  id="mb-c"></ul>
         <button class="mol-enr" id="mb-e">Kursga Yozilish — Bepul Konsultatsiya</button>
@@ -860,31 +864,37 @@
   const DEFS = [
     {id:'c1',cat:'savod',em:'📝',th:'th-word',w:4,
      title:'Microsoft Word',price:'Bepul',dur:'3 hafta',les:24,stu:430,lv:1,feat:true,
+     videoUrl:'https://youtube.com/watch?v=SFa9AKQdL5Y',
      desc:'Hujjat yaratishdan professional maketlashgacha. Jadvallar, rasmlar, shablonlar.',
      full:'Microsoft Word — dunyo\'da eng ko\'p ishlatiladigan matn muharriri. Kursda noldan professional hujjatlar yaratishni o\'rganasiz.',
      cur:['Word interfeysi va asosiy sozlamalar','Matn kiritish, tahrirlash va formatlash','Shrift, rang va paragraf sozlamalari','Jadvallar yaratish va boshqarish','Rasm, shakl va SmartArt qo\'shish','Sahifa formatlash va chegaralar','Mundarija va havolalar','Saqlash, chop etish va PDF eksport']},
     {id:'c2',cat:'savod',em:'📊',th:'th-excel',w:4,pop:true,
      title:'Microsoft Excel',price:'299 000 so\'m',dur:'4 hafta',les:32,stu:380,lv:2,
+     videoUrl:'https://youtube.com/watch?v=xYRAuEVOD_I',
      desc:'Jadvallar, formulalar, grafiklar va ma\'lumot tahlili. Ish uchun zarur Excel.',
      full:'Excel — raqamlar va tahlil uchun eng kuchli vosita. Formulalar, funksiyalar, diagrammalar va hisobotlar.',
      cur:['Excel interfeysi va tushunchalar','Hujayra, qator va ustun','SUM, AVERAGE, MAX formulalari','IF, VLOOKUP, INDEX/MATCH','Shartli formatlash','Diagramma va grafiklar','Ma\'lumot saralash va filtrlash','Pivot Table va hisobotlar']},
     {id:'c3',cat:'savod',em:'🖥️',th:'th-ppt',w:4,
      title:'PowerPoint — Taqdimotlar',price:'249 000 so\'m',dur:'2 hafta',les:16,stu:320,lv:1,
+     videoUrl:'https://youtube.com/watch?v=az3-OfGFupQ',
      desc:'Chiroyli va ta\'sirli taqdimotlar. Animatsiyalar, o\'tishlar, professional dizayn.',
      full:'PowerPoint bilan g\'oyalaringizni vizual tarzda ifoda eting. Animatsiya va professional dizayn asoslari.',
      cur:['Interfeys va yangi taqdimot','Slayd maketi va shablonlar','Matn, rasm va ikonalar','Forma va SmartArt','Animatsiyalar — kirish, chiqish','Slaydlar orasidagi o\'tishlar','Video va audio qo\'shish','Namoyish va eksport']},
     {id:'c4',cat:'savod',em:'🌐',th:'th-net',w:6,feat:true,
      title:'Internet va Brauzer Asoslari',price:'Bepul',dur:'1 hafta',les:10,stu:650,lv:1,
+     videoUrl:'https://youtube.com/watch?v=s7xdwLb-rmY',
      desc:'Internet qanday ishlaydi? Xavfsiz qidirish, brauzer va onlayn xizmatlar.',
      full:'Zamonaviy dunyoda internet bilimisiz bo\'lmaydi. Xavfsiz harakat, ma\'lumot qidirish va turli xizmatlar.',
      cur:['Internet nima va qanday ishlaydi','Brauzerni o\'rnatish (Chrome, Firefox)','Samarali qidiruv (Google)','Xavfsiz internet: parollar va fishing','Fayllarni yuklab olish va yuklash','Onlayn to\'lovlar va xavfsizlik','VPN va maxfiylik','Foydali onlayn xizmatlar']},
     {id:'c5',cat:'savod',em:'📧',th:'th-gmail',w:3,
      title:'Gmail va Google Xizmatlar',price:'Bepul',dur:'1 hafta',les:8,stu:540,lv:1,
+     videoUrl:'https://youtube.com/watch?v=wvfk8tWwVWg',
      desc:'Gmail, Drive, Docs va Meet — ish va kundalik hayot uchun bepul vositalar.',
      full:'Google xizmatlaridan professional foydalanish — Gmail, Drive, Docs, Sheets, Meet va Calendar.',
      cur:['Gmail hisob va interfeys','Xat yozish va qabul qilish','Papkalar, teglar va qidirish','Google Drive','Google Docs va Sheets','Google Meet','Google Calendar','Hisob xavfsizligi']},
     {id:'c6',cat:'savod',em:'📱',th:'th-tg',w:3,pop:true,
      title:'Telegram Professional',price:'Bepul',dur:'1 hafta',les:8,stu:820,lv:1,
+     videoUrl:'https://youtube.com/watch?v=E67_5VLj9UI',
      desc:'Telegram kanallar, guruhlar, botlar va biznes uchun Telegram imkoniyatlari.',
      full:'Telegram shunchaki messenjer emas — bu kuchli kommunikatsiya platformasi. Kanal, guruh, bot va xavfsizlik.',
      cur:['Telegram o\'rnatish va hisob','Xabar, rasm, fayl yuborish','Guruh va kanal yaratish','Guruh moderatsiyasi','Botlardan foydalanish','Telegram Premium','Xavfsizlik sozlamalari','Biznes uchun Telegram']},
@@ -892,36 +902,43 @@
     // DASTURLASH
     {id:'c7',cat:'prog',em:'🌐',th:'th-html',w:6,feat:true,
      title:'HTML & CSS — Veb Asoslari',price:'399 000 so\'m',dur:'5 hafta',les:40,stu:290,lv:1,
+     videoUrl:'https://youtube.com/watch?v=BK7OXSRNYU4',
      desc:'Veb dasturlash asosi. Semantik HTML5, zamonaviy CSS, Flexbox, Grid va responsive dizayn.',
      full:'HTML va CSS — har qanday veb-saytning asosi. Flexbox, CSS Grid, animatsiyalar va responsive dizayn to\'liq.',
      cur:['HTML nima? Asosiy teglar','Semantik HTML5 elementlari','CSS kiritish va selektor turlari','Box Model: margin, padding, border','Flexbox — moslashuvchan joylashuv','CSS Grid — 2D layoutlar','Responsive dizayn va media queries','CSS animatsiyalar va transitions','CSS o\'zgaruvchilar','Real loyiha: Portfolio']},
     {id:'c8',cat:'prog',em:'⚡',th:'th-js',w:4,pop:true,
      title:'JavaScript — Interaktiv Veb',price:'499 000 so\'m',dur:'8 hafta',les:64,stu:220,lv:2,
+     videoUrl:'https://youtube.com/watch?v=qpP9C-KsA1k',
      desc:'Modern JS ES6+, DOM manipulyatsiya, asynchronous dasturlash va API integratsiyasi.',
      full:'JavaScript — dunyo eng mashhur tili. Zamonaviy JS, Promises, async/await va real loyihalar.',
      cur:['JS asoslari: o\'zgaruvchilar, turlari','Funksiyalar, arrow functions, scope','Array va Object metodlari','DOM: elementlar va tahrirlash','Events va event handling','ES6+: destructuring, spread, modules','Promises va async/await','Fetch API va AJAX','LocalStorage','Real loyiha: Todo + Weather App']},
     {id:'c9',cat:'prog',em:'⚛️',th:'th-react',w:8,feat:true,
      title:'React — Zamonaviy Frontend Freymvork',price:'699 000 so\'m',dur:'10 hafta',les:80,stu:160,lv:3,
+     videoUrl:'https://youtube.com/watch?v=w6j08clJnzk',
      desc:'React hooks, komponent arxitekturasi, state management va real loyihalar yaratish.',
      full:'React — Meta tomonidan yaratilgan eng mashhur JavaScript kutubxonasi. Hooks, Context API, React Router.',
      cur:['React nima? JSX va Virtual DOM','Funksional komponentlar va props','useState va useEffect','Event handling va forms','useRef, useCallback, useMemo','Context API — global state','React Router — ko\'p sahifali app','API bilan ishlash: axios','Custom Hooks','Real loyiha: E-commerce']},
     {id:'c10',cat:'prog',em:'🐍',th:'th-py',w:4,
      title:'Python Dasturlash',price:'449 000 so\'m',dur:'8 hafta',les:60,stu:340,lv:1,
+     videoUrl:'https://youtube.com/watch?v=_DE6yNyu_sQ',
      desc:'Python noldan o\'rganish. Sintaksis, OOP, fayl ishlash va kichik loyihalar.',
      full:'Python — o\'rganish uchun eng qulay va kuchli til. AI, ma\'lumotlar tahlili va veb-dasturlash uchun.',
      cur:['Python o\'rnatish va muhit','O\'zgaruvchilar, ma\'lumot turlari','Shartli operatorlar: if/elif/else','Tsikllar: for va while','Funksiyalar','Ro\'yxat, lug\'at, to\'plam','Fayl o\'qish va yozish','OOP asoslari','Modullar va paketlar','Real loyiha: Kalkulyator']},
     {id:'c11',cat:'prog',em:'🤖',th:'th-bot',w:8,feat:true,pop:true,
      title:'Telegram Bot Yaratish — Python + Aiogram',price:'549 000 so\'m',dur:'6 hafta',les:48,stu:280,lv:2,
+     videoUrl:'https://youtube.com/watch?v=537zZTLzyl4',
      desc:'Python va Aiogram 3.x yordamida professional Telegram botlar, to\'lov tizimi va ma\'lumotlar bazasi.',
      full:'Telegram botlar — biznes avtomatizatsiyasining kuchli vositasi. Python + Aiogram 3.x, ma\'lumotlar bazasi, to\'lov.',
      cur:['Telegram Bot API va BotFather','Aiogram 3.x o\'rnatish','Asosiy xabarlar va buyruqlar','Reply va Inline tugmalar','Callback query va navigation','FSM — Finite State Machine','SQLite/PostgreSQL bilan ishlash','Admin panel yaratish','To\'lov: Click va Payme','Deploy: VPS serverga joylash']},
     {id:'c12',cat:'prog',em:'🔧',th:'th-git',w:4,
      title:'Git & GitHub',price:'199 000 so\'m',dur:'2 hafta',les:16,stu:190,lv:2,
+     videoUrl:'https://youtube.com/watch?v=9f4ul7y1bSM',
      desc:'Har bir dasturchi bilishi shart. Commit, branch, merge va GitHub workflow.',
      full:'Git — versiya nazorat tizimi. GitHub, pull request va jamoa bilan ishlash usullari.',
      cur:['Git nima va nima uchun?','O\'rnatish va sozlash','Repository yaratish','add, commit, status, log','Branch yaratish va o\'tish','Merge va rebase','GitHub: push, pull','Pull Request va Code Review']},
     {id:'c13',cat:'prog',em:'🎨',th:'th-css',w:4,
      title:'CSS Advanced & Animatsiyalar',price:'349 000 so\'m',dur:'4 hafta',les:32,stu:145,lv:3,
+     videoUrl:'https://youtube.com/watch?v=2EFQaMUMvDY',
      desc:'Professional CSS animatsiyalar, 3D transformatsiyalar va scroll-driven effektlar.',
      full:'CSS faqat stil emas — bu san\'at. Keyframes, clip-path, SVG animatsiyalar va scroll-driven effektlar.',
      cur:['CSS transitions chuqur','Keyframe animatsiyalar','2D va 3D transformatsiyalar','CSS variables','Clip-path va masking','Scroll-driven animatsiyalar','CSS Filter','SVG animatsiyalar']},
@@ -929,6 +946,7 @@
     // DIZAYN
     {id:'c14',cat:'design',em:'🎨',th:'th-canva',w:12,feat:true,
      title:'Canva — Grafik Dizayn: Noldan Professionallikkacha',price:'199 000 so\'m',dur:'2 hafta',les:14,stu:510,lv:1,
+     videoUrl:'https://youtube.com/watch?v=UI-wbJb_LTw',
      desc:'Canva yordamida professional post, banner, logo va taqdimot yarating. Programmasiz professional dizayn!',
      full:'Canva — dasturlash bilmasdan professional dizayn qilish imkonini beruvchi onlayn platforma.',
      cur:['Canva hisob va interfeys','Shablonlar va o\'lchamlar','Matn va tipografiya','Ranglar nazariyasi va palitra','Rasm, ikonalar va elementlar','Social media postlar: Instagram, Telegram','Banner va flyer yaratish','Logotip dizayni','Animatsiyali dizaynlar','Fayl eksport: PNG, PDF, MP4']},
@@ -937,6 +955,10 @@
   let courses  = JSON.parse(localStorage.getItem('edu_c') || 'null') || [...DEFS];
   let students = JSON.parse(localStorage.getItem('edu_s') || '[]');
   let editId   = null;
+  /* Migrate: sync videoUrl from DEFS into existing saved courses */
+  courses.forEach(c=>{
+    if(!c.videoUrl){const d=DEFS.find(x=>x.id===c.id);if(d&&d.videoUrl)c.videoUrl=d.videoUrl;}
+  });
   
   const save = () => {
     localStorage.setItem('edu_c', JSON.stringify(courses));
@@ -1187,8 +1209,22 @@
     const c=courses.find(x=>x.id===id);if(!c)return;
     const catCls={savod:'cat-s',prog:'cat-p',design:'cat-d'};
     const catNm={savod:'💻 Savodxonlik',prog:'⌨️ Dasturlash',design:'🎨 Dizayn'};
-    document.getElementById('mt').className=`mol-top ${c.th}`;
-    document.getElementById('mt').textContent=c.em;
+    /* Video at TOP */
+    const vidTop=document.getElementById('mol-vid-top');
+    const vidFr =document.getElementById('mol-video-fr');
+    const molTop =document.getElementById('mt');
+    const ytId=ytEmbed(c.videoUrl);
+    if(ytId){
+      vidFr.src=`https://www.youtube.com/embed/${ytId}?rel=0&modestbranding=1`;
+      vidTop.style.display='block';
+      molTop.style.display='none';
+    } else {
+      vidFr.src='';
+      vidTop.style.display='none';
+      molTop.style.display='flex';
+      molTop.className=`mol-top ${c.th}`;
+      molTop.textContent=c.em;
+    }
     document.getElementById('mb-badge').innerHTML=`<span class="kk-cat ${catCls[c.cat]}">${catNm[c.cat]}</span>`;
     document.getElementById('mb-t').textContent=c.title;
     document.getElementById('mb-d').textContent=c.full||c.desc;
@@ -1197,18 +1233,6 @@
       <div class="mkpi"><div class="mkpi-v">${c.les}</div><div class="mkpi-l">Darslar</div></div>
       <div class="mkpi"><div class="mkpi-v">${c.stu||0}</div><div class="mkpi-l">O'quvchilar</div></div>`;
     document.getElementById('mb-c').innerHTML=(c.cur||[]).map(x=>`<li><span class="ck">✦</span>${x}</li>`).join('');
-    /* Video */
-    const vidWrap=document.getElementById('mb-vid');
-    const vidEl=document.getElementById('mol-video-wrap');
-    const vidFr=document.getElementById('mol-video-fr');
-    if(c.videoUrl){
-      const ytId=ytEmbed(c.videoUrl);
-      if(ytId){
-        vidFr.src=`https://www.youtube.com/embed/${ytId}?rel=0`;
-        vidEl.style.display='block';
-        vidWrap.style.display='block';
-      } else { vidWrap.style.display='none'; }
-    } else { vidWrap.style.display='none'; }
     document.getElementById('mb-e').onclick=()=>{cMol();openEM(id)};
     document.getElementById('mol').classList.add('open');
     document.body.style.overflow='hidden';
@@ -1218,7 +1242,13 @@
     const m=url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
     return m?m[1]:null;
   }
-  function cMol(){document.getElementById('mol').classList.remove('open');document.body.style.overflow=''}
+  function cMol(){
+    /* Stop video on close */
+    const fr=document.getElementById('mol-video-fr');
+    if(fr)fr.src=fr.src;
+    document.getElementById('mol').classList.remove('open');
+    document.body.style.overflow='';
+  }
   
   /* ═══════════════════════════════════════════
      ENROLL MODAL
@@ -1249,7 +1279,7 @@
     save();cEM();
     toast(`${nm}, yozilish muvaffaqiyatli! 24 soat ichida aloqa.`,'🎓');
     /* Email notification → admin */
-    fetch('https://formsubmit.co/ajax/suhrobbekqayumov89@gmail.com',{
+    fetch('https://formsubmit.co/ajax/suhrobbekqayumov@gmail.com',{
       method:'POST',
       headers:{'Content-Type':'application/json','Accept':'application/json'},
       body:JSON.stringify({
